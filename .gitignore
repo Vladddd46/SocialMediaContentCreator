@@ -3,7 +3,7 @@ env
 logs
 content
 cookies.txt
-configurations/*.json
+configurations/managable_accounts.json
 *.mp4
 .DS_Store
 accounts_data
