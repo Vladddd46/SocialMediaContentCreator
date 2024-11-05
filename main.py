@@ -1,3 +1,9 @@
+"""
+# author: vladddd46
+# brief: entrypoint to app. see ./docs/ for more info
+# date: 05.11.2024
+"""
+
 import argparse
 import queue
 import threading
@@ -5,21 +11,31 @@ import time
 
 import schedule
 
-from configurations.config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
-                                   MANAGABLE_ACCOUNT_DATA_PATH,
-                                   MANAGABLE_ACCOUNTS_CONFIG_PATH, USE_SHEDULE)
+from configurations.config import (
+    CONTENT_TO_UPLOAD_CONFIG_FILENAME,
+    LOG_PATH,
+    MANAGABLE_ACCOUNT_DATA_PATH,
+    MANAGABLE_ACCOUNTS_CONFIG_PATH,
+    USE_SHEDULE,
+)
 from src.utils.fs_utils import read_json, remove_directory, remove_recursive
-from src.utils.helpers import (construct_managable_accounts,
-                               create_default_dir_stucture)
+from src.utils.helpers import construct_managable_accounts, create_default_dir_stucture
 from src.utils.Logger import logger
 
 request_to_upload_queue = queue.Queue()
 
-
+"""
+# User run python main --clean
+# Remove log files
+"""
 def clean():
     remove_directory(f"{LOG_PATH}")
 
 
+"""
+# User run python main --full_clean
+# Remove all files, that were created during program execution.
+"""
 def full_clean():
     clean()
     remove_recursive("__pycache__")
@@ -28,23 +44,25 @@ def full_clean():
 
 
 def handle_managable_account(account):
-    contentToUploadConfigPath = (
+    content_to_upload_config_path = (
         account.get_account_dir_path() + CONTENT_TO_UPLOAD_CONFIG_FILENAME
     )
-    contentToUploadConfig = read_json(contentToUploadConfigPath)
+    content_to_upload_config = read_json(content_to_upload_config_path)
 
     logger.info(
-        f"Handling account={account.name} | uploadingConfig={contentToUploadConfigPath}"
+        f"Handling account={account.name} | uploadingConfig={content_to_upload_config_path}"
     )
 
-    if len(contentToUploadConfig) == 0:
+    if len(content_to_upload_config) == 0:
         logger.info(
-            f"There is no new content to upload in {account.name} ({account.accountType.value}) account"
+            f"There is no new content to upload in {account.name} account"
         )
-        print("download scenario")  # TODO: there is no content to upload. download new content
+        print(
+            "download scenario"
+        )  # TODO: there is no content to upload. download new content
 
     print("upload scenario")  # TODO: upload the content.
-    return None  # TODO: result of upload
+    return True  # TODO: result of upload
 
 
 def process_uploading_request_thread():
@@ -67,7 +85,7 @@ def schedule_uploading_job(account):
 def execute(managable_accounts):
     logger.info(f"Schedule is used={USE_SHEDULE}")
 
-    if USE_SHEDULE == True:
+    if USE_SHEDULE is True:
 
         # Start detached thread, which reads accounts data from queue and
         # upload new content to account, which was read from the queue.
