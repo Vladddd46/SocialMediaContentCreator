@@ -2,7 +2,7 @@
 # date: 31.10.2024
 # brief: Represents a TikTok-specific implementation of ManagableAccount.
 
-from config import TIKTOK_COOKIES_PATH
+from configurations.config import TIKTOK_COOKIES_PATH
 from src.entities.AccountCredentials import AccountCredentials
 from src.entities.AccountType import AccountType
 from src.entities.ContentToUpload import ContentToUpload

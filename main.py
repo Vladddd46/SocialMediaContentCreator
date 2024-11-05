@@ -5,7 +5,7 @@ import time
 
 import schedule
 
-from config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
+from configurations.config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
                     MANAGABLE_ACCOUNT_DATA_PATH,
                     MANAGABLE_ACCOUNTS_CONFIG_PATH, USE_SHEDULE)
 from src.utils.fs_utils import read_json, remove_directory, remove_recursive

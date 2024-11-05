@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from config import DEBUG_MODE, LOG_ENABLED, LOG_PATH, WRITE_LOG_IN_STDOUT
+from configurations.config import DEBUG_MODE, LOG_ENABLED, LOG_PATH, WRITE_LOG_IN_STDOUT
 from src.utils.fs_utils import create_directory_if_not_exist
 
 create_directory_if_not_exist(LOG_PATH)

@@ -7,7 +7,7 @@
 
 from abc import ABC, abstractmethod
 
-from config import MANAGABLE_ACCOUNT_DATA_PATH
+from configurations.config import MANAGABLE_ACCOUNT_DATA_PATH
 from src.entities.AccountCredentials import AccountCredentials
 from src.entities.AccountType import AccountType
 from src.entities.ContentToUpload import ContentToUpload
