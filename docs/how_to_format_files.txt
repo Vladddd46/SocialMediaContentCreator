@@ -1,0 +1,14 @@
+# This commands:
+# 1. format python files according to PEP
+# 2. delete unused imports
+# 3. sort imports in ascending order
+#
+
+# Installation
+# brew install black (mac os)
+# pip install autoflake
+# pip install isort
+
+black file_name.py
+autoflake --in-place --remove-all-unused-imports file_name.py
+isort file_name.py
