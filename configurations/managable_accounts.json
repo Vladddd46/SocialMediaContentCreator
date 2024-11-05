@@ -1,0 +1,11 @@
+[
+    {
+        "name": "capybarra_manager",
+        "description": "highlights of interviews",
+        "url": "https://www.tiktok.com/@capybarra_manager",
+        "proxy": null,
+        "credentials": null,
+        "accountType": "TIKTOK",
+        "schedule": {"every_days": 1, "at_time": ["09:00", "15:00", "20:00"]}
+    }
+]
