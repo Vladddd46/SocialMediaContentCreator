@@ -16,6 +16,7 @@ from src.utils.fs_utils import is_path_exists
 from src.utils.Logger import logger
 from src.entities.Schedule import Schedule
 
+
 class ManagableAccount(ABC):
     def __init__(
         self,
@@ -25,7 +26,7 @@ class ManagableAccount(ABC):
         proxy: Proxy,
         credentials: AccountCredentials,
         accountType: AccountType,
-        schedule: Schedule
+        schedule: Schedule,
     ):
         self.name = name
         self.description = description

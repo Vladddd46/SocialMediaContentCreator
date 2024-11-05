@@ -11,5 +11,5 @@ class Schedule:
         return f"Schedule(every_days={self.every_days}, time={self.time})"
 
     def __str__(self):
-        times = ', '.join(self.time)
+        times = ", ".join(self.time)
         return f"Schedule: Every {self.every_days} days at times [{times}]"

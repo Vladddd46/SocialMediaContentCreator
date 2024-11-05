@@ -1,0 +1,35 @@
+Managable accounts are configured in file './configurations/managable_accounts.json'.
+You may find ./configurations/example_managable_accounts.json and you have to rename it into managable_accounts.json.
+
+
+This is .json file, which consists of list of account configurations.
+Each account configuration has the following structure:
+
+{
+    "name": "capybarra_manager",
+    "description": "highlights of interviews",
+    "url": "https://www.tiktok.com/@capybarra_manager",
+    "proxy": proxy obj or null,
+    "credentials": credentials obj or null,
+    "accountType": "TIKTOK",
+    "schedule": {"every_days": 1, "at_time": ["09:00", "16:47", "20:00"]} or null
+}
+
+1. name - name of account. It is used only for identification, so you may choose any name.
+2. description - description of account. It is used only for identification, so you may choose any description.
+3. url - link to main page of the account.
+4. proxy - proxy, which will be used while uploading content to account. If no proxy - use null
+    proxy: {"user": "username", "pass": "password", "host": "127.0.0.1", "port": "5000"}
+5. credentials - credentials for login into account. If no credentials - use null
+    credentials: {"login": "login", "password": "password"}
+6. accountType - type of the account(example: TIKTOK). Account types can be found in src/entities/AccountType.py
+7. schedule - defines how frequently content should be posted. If no schedule - use null. (do it only for debug, otherwise content will be upload constantly)
+    schedule: {"every_days": 1, "at_time": ["09:00", "16:47", "20:00"]}
+    every_days - per how much days content will be posts. 1 means every day
+    at_time - at what time content will be posted. Must be a list of time in format hh:mm
+
+
+
+Note: Tiktok does not support automatic login, so to make script work you should place cookies.txt file into accounts_data/TIKTOK/account_name/creds folder. accounts_data folder is automatically created after first run of the script. So, run 'python main.py' and after default folder structure will be created, add cookies.txt into accounts_data/TIKTOK/account_name/creds.
+
+File cookies.txt can be retrieved via chrome extension "Get cookies.txt LOCALLY". Just login into your tiktok account and use this extension to retrieve cookies.

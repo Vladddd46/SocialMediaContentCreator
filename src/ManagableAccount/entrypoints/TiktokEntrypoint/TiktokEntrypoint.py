@@ -1,9 +1,11 @@
 import os
 
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.auth import \
-    AuthBackend
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.upload import \
-    upload_videos
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.auth import (
+    AuthBackend,
+)
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.upload import (
+    upload_videos,
+)
 from src.utils.Logger import logger
 
 
@@ -15,7 +17,9 @@ class TiktokEntrypoint:
 
     def upload_video(self, path, description):
         if os.path.exists(self.m_cookies_path) == False:
-            logger.error(f" Cookies file does not exist: {self.m_cookies_path}")
+            logger.error(
+                f" Cookies file does not exist: {self.m_cookies_path}\nCheck docs/howto_configure_managable_accounts.txt"
+            )
             exit(1)
         if os.path.exists(path) == False:
             logger.error(f"Video path does not exist: {path}")

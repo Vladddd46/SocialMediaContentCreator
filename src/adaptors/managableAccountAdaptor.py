@@ -8,6 +8,7 @@ from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.ManagableAccount.TiktokManagableAccount import TiktokManagableAccount
 from src.utils.Logger import logger
 
+
 # Adapter function to convert JSON to an optional ManagableAccount object
 def json_to_managable_account(data: Dict) -> Optional[ManagableAccount]:
     """
@@ -57,7 +58,9 @@ def json_to_managable_account(data: Dict) -> Optional[ManagableAccount]:
                 schedule_time.append(time_i)
             schedule = Schedule(every_days, schedule_time)
         except:
-            logger.info("Error happened during parsing managable accounts config: scheduler is not parsed")
+            logger.info(
+                "Error happened during parsing managable accounts config: scheduler is not parsed"
+            )
 
     # Create and return the correct ManagableAccount instance based on account type
     if account_type == AccountType.TIKTOK:
@@ -68,7 +71,7 @@ def json_to_managable_account(data: Dict) -> Optional[ManagableAccount]:
             proxy=proxy,
             credentials=credentials,
             accountType=account_type,
-            schedule=schedule
+            schedule=schedule,
         )
 
     return None

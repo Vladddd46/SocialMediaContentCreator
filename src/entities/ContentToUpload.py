@@ -11,6 +11,6 @@ class ContentToUploadType(Enum):
 class ContentToUpload:
 
     def __init__(self, mediaFiles: List[MediaFile], text: str, cid: int):
-        self.cid = cid # needed to sort ContentToUpload by this key.
+        self.cid = cid  # needed to sort ContentToUpload by this key.
         self.mediaFiles = mediaFiles
         self.text = text

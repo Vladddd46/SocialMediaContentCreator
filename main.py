@@ -6,8 +6,8 @@ import time
 import schedule
 
 from configurations.config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
-                    MANAGABLE_ACCOUNT_DATA_PATH,
-                    MANAGABLE_ACCOUNTS_CONFIG_PATH, USE_SHEDULE)
+                                   MANAGABLE_ACCOUNT_DATA_PATH,
+                                   MANAGABLE_ACCOUNTS_CONFIG_PATH, USE_SHEDULE)
 from src.utils.fs_utils import read_json, remove_directory, remove_recursive
 from src.utils.helpers import (construct_managable_accounts,
                                create_default_dir_stucture)
@@ -41,10 +41,10 @@ def handle_managable_account(account):
         logger.info(
             f"There is no new content to upload in {account.name} ({account.accountType.value}) account"
         )
-        print("download scenario")  # TODO
+        print("download scenario")  # TODO: there is no content to upload. download new content
 
-    print("upload scenario")  # TODO
-    return None
+    print("upload scenario")  # TODO: upload the content.
+    return None  # TODO: result of upload
 
 
 def process_uploading_request_thread():

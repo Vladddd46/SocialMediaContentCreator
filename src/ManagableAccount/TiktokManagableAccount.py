@@ -8,8 +8,9 @@ from src.entities.AccountType import AccountType
 from src.entities.ContentToUpload import ContentToUpload
 from src.entities.MediaType import MediaType
 from src.entities.Proxy import Proxy
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.TiktokEntrypoint import \
-    TiktokEntrypoint
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.TiktokEntrypoint import (
+    TiktokEntrypoint,
+)
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.utils.Logger import logger
 from src.entities.Schedule import Schedule
@@ -24,9 +25,11 @@ class TiktokManagableAccount(ManagableAccount):
         proxy: Proxy,
         credentials: AccountCredentials,
         accountType: AccountType,
-        schedule: Schedule
+        schedule: Schedule,
     ):
-        super().__init__(name, description, url, proxy, credentials, accountType, schedule)
+        super().__init__(
+            name, description, url, proxy, credentials, accountType, schedule
+        )
         cookies_for_login_in_tiktok_account_path = (
             self.get_account_dir_path() + TIKTOK_COOKIES_PATH
         )
