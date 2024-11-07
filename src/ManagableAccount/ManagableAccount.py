@@ -40,7 +40,7 @@ class ManagableAccount(ABC):
         return f"{MANAGABLE_ACCOUNT_DATA_PATH}/{self.accountType.value}/{self.name}/"
 
     @abstractmethod
-    def upload(self, content_to_upload: ContentToUpload):
+    def upload(self, content_to_upload: ContentToUpload) -> bool:
         """Abstract method for uploading multiple content items. Must be implemented by subclasses."""
 
     def _validate_media_files(self, content_to_upload: ContentToUpload):

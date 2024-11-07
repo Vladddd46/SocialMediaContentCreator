@@ -20,16 +20,23 @@ class TiktokEntrypoint:
             logger.error(
                 f" Cookies file does not exist: {self.m_cookies_path}\nCheck docs/howto_configure_managable_accounts.txt"
             )
+            print("Force exit | check logs in ./logs")
             exit(1)
         if os.path.exists(path) == False:
             logger.error(f"Video path does not exist: {path}")
+            print("Force exit | check logs in ./logs")
             exit(1)
 
         videos = [
             {"video": path, "description": description},
         ]
         auth = AuthBackend(cookies=self.m_cookies_path)
+
+        if self.m_proxy != None:
+            tmp_proxy = self.m_proxy.to_json()
+        else:
+            tmp_proxy=None
         failed_videos = upload_videos(
-            videos=videos, auth=auth, headless=True, proxy=self.m_proxy.to_json()
+            videos=videos, auth=auth, headless=True, proxy=tmp_proxy
         )
         return len(failed_videos) == 0

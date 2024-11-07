@@ -97,6 +97,19 @@ def create_directory_if_not_exist(path):
         return False
 
 
+def remove_file(file_path: str) -> bool:
+    try:
+        os.remove(file_path)
+        return True
+    except FileNotFoundError:
+        pass
+    except PermissionError:
+        pass
+    except Exception as e:
+        pass
+    return False
+
+
 def remove_files(pattern):
     try:
         # Find all files matching the pattern
@@ -180,3 +193,12 @@ def read_json(file_path):
         # print(f"An error occurred: {e}")
         pass
     return None
+
+def save_json(data, file_path: str) -> None:
+    try:
+        with open(file_path, 'w', encoding='utf-8') as json_file:
+            json.dump(data, json_file, ensure_ascii=False, indent=4)
+        return True
+    except Exception as e:
+        pass
+    return False

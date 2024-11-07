@@ -65,6 +65,6 @@ class TiktokManagableAccount(ManagableAccount):
             logger.error("MediaType is currently not supported to upload in tiktok")
         return False
 
-    def upload(self, content_to_upload: ContentToUpload):
+    def upload(self, content_to_upload: ContentToUpload) -> bool:
         """Uploads content object to TikTok."""
         return self.__upload(content_to_upload)

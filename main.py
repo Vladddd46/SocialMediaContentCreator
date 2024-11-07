@@ -11,15 +11,14 @@ import time
 
 import schedule
 
-from configurations.config import (
-    CONTENT_TO_UPLOAD_CONFIG_FILENAME,
-    LOG_PATH,
-    MANAGABLE_ACCOUNT_DATA_PATH,
-    MANAGABLE_ACCOUNTS_CONFIG_PATH,
-    USE_SHEDULE,
-)
-from src.utils.fs_utils import read_json, remove_directory, remove_recursive
-from src.utils.helpers import construct_managable_accounts, create_default_dir_stucture
+from configurations.config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
+                                   MANAGABLE_ACCOUNT_DATA_PATH,
+                                   MANAGABLE_ACCOUNTS_CONFIG_PATH, USE_SHEDULE)
+from src.adaptors.ContentToUploadAdaptor import json_to_ContentToUpload
+from src.utils.fs_utils import (read_json, remove_directory, remove_file,
+                                remove_recursive, save_json)
+from src.utils.helpers import (construct_managable_accounts,
+                               create_default_dir_stucture)
 from src.utils.Logger import logger
 
 request_to_upload_queue = queue.Queue()
@@ -43,26 +42,73 @@ def full_clean():
     remove_directory(f"{MANAGABLE_ACCOUNT_DATA_PATH}")
 
 
+def upload_scenario(account):
+    content_to_upload_config_path = (
+        account.get_account_dir_path() + CONTENT_TO_UPLOAD_CONFIG_FILENAME
+    )
+    # need to read config with contentToUpload requests again because
+    # if there was no contentToUpload, new contentToUpload could appear after download scenario.
+    content_to_upload_requests = read_json(content_to_upload_config_path)
+    if len(content_to_upload_requests) == 0:
+        logger.warning(
+            f"There is still no content to upload even after downloading account={account.name}"
+        )
+        return False
+
+    # sort requests, so to take the oldest contentToUpload.
+    sorted_requests = sorted(content_to_upload_requests, key=lambda x: x["cid"])
+    contentToUpload_json = sorted_requests.pop(0)
+    contentToUpload = json_to_ContentToUpload(contentToUpload_json)
+
+    # upload new content into account.
+    result = account.upload(contentToUpload)
+
+    # if new content was uploaded, remove all entries associated with this content.
+    if result == True:
+        # TODO: encapsulate it in function removeContent(contentToUpload)
+        for media_file in contentToUpload.mediaFiles:
+            rm_res = remove_file(media_file.path)
+            logger.info(f"removing mediaFile={media_file.path} | result={rm_res}")
+
+        # update contentToUpload config, so to remove already uploaded content
+        upd_cnfg_res = save_json(sorted_requests, content_to_upload_config_path)
+        logger.info(f"removing mediaFile={media_file.path} | result={upd_cnfg_res}")
+
+    return result
+
+
+def download_screnario(account):
+    # There is no content to upload into managable account=account
+    # That`s why we need to download new content from sources,
+    # process it into highlights or some other content.
+    # For this we need.
+    # 1. download content from sources.
+    # 2. process it and place it into accounts_data/accountType/account_name/contentToUpload folder
+    # 3. add ContentToUpload json object into accounts_data/accountType/account_name/contentToUploadConfig.json file.
+    # see ContentToUpload in src/entities/ContentToUpload.py
+    # That`s all what should be done in this function.
+    # After download scenario, upload scenario will read contentToUploadConfig.json and form new post and upload it
+    # into managable account.
+    pass
+
 def handle_managable_account(account):
     content_to_upload_config_path = (
         account.get_account_dir_path() + CONTENT_TO_UPLOAD_CONFIG_FILENAME
     )
-    content_to_upload_config = read_json(content_to_upload_config_path)
+    content_to_upload_requests = read_json(content_to_upload_config_path)
 
     logger.info(
         f"Handling account={account.name} | uploadingConfig={content_to_upload_config_path}"
     )
 
-    if len(content_to_upload_config) == 0:
+    # No available content to upload => download new content and prepare for uploading.
+    if len(content_to_upload_requests) == 0:
         logger.info(
-            f"There is no new content to upload in {account.name} account"
+            f"There is no new content to upload in {account.name} account => start downloading raw content"
         )
-        print(
-            "download scenario"
-        )  # TODO: there is no content to upload. download new content
-
-    print("upload scenario")  # TODO: upload the content.
-    return True  # TODO: result of upload
+        download_screnario(account)
+    result = upload_scenario(account)
+    return result
 
 
 def process_uploading_request_thread():
@@ -95,13 +141,16 @@ def execute(managable_accounts):
         consumer_thread.start()
         #
 
-        # configure schedule for posting content in each account.
+        # configure scheduler for posting content in each account.
+        # shedule can be configured in managable_accounts.json
         for account in managable_accounts:
             days = account.schedule.every_days
             for time_i in account.schedule.time:
                 schedule.every(days).day.at(time_i).do(
                     schedule_uploading_job, account=account
                 )
+
+        # run sheduler infinitely. In scheduled time it will trigger schedule_uploading_job function.
         while True:
             schedule.run_pending()
             time.sleep(5)  # sleep for 5 seconds

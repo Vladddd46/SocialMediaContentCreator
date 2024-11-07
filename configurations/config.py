@@ -1,6 +1,6 @@
 DEBUG_MODE = True
 LOG_ENABLED = True
-USE_SHEDULE = True
+USE_SHEDULE = False
 LOG_PATH = "./logs"
 WRITE_LOG_IN_STDOUT = False
 MANAGABLE_ACCOUNT_DATA_PATH = "./accounts_data"
