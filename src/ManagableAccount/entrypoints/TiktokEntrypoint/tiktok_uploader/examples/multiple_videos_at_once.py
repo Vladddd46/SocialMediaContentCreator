@@ -2,9 +2,9 @@
 Uploads multiple videos downloaded from the internet
 """
 
-from tiktok_uploader.upload import upload_videos
-
 import urllib.request
+
+from tiktok_uploader.upload import upload_videos
 
 URL = "https://raw.githubusercontent.com/wkaisertexas/wkaisertexas.github.io/main/upload.mp4"
 FILENAME = "upload.mp4"

@@ -1,8 +1,9 @@
 import os
+import re
+
 import moviepy.editor as mp
 import whisper
 from transformers import pipeline
-import re
 
 # Set environment variable to avoid parallelism warnings
 os.environ["TOKENIZERS_PARALLELISM"] = "false"

@@ -7,43 +7,30 @@ upload_video : Uploads a single TikTok video
 upload_videos : Uploads multiple TikTok videos
 """
 
-from os.path import abspath, exists
-from typing import List
-import time
-import pytz
 import datetime
 import threading
+import time
+from os.path import abspath, exists
+from typing import List
 
+import pytz
+from selenium.common.exceptions import (ElementClickInterceptedException,
+                                        TimeoutException)
 from selenium.webdriver.common.by import By
-
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import (
-    ElementClickInterceptedException,
-    TimeoutException,
-)
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.browsers import (
-    get_browser,
-)
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.auth import (
-    AuthBackend,
-)
 from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader import (
-    config,
-    logger,
-)
+    config, logger)
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.auth import \
+    AuthBackend
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.browsers import \
+    get_browser
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.proxy_auth_extension.proxy_auth_extension import \
+    proxy_is_working
 from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.utils import (
-    bold,
-    cyan,
-    green,
-    red,
-)
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.proxy_auth_extension.proxy_auth_extension import (
-    proxy_is_working,
-)
+    bold, green, red)
 
 
 def upload_video(

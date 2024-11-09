@@ -2,16 +2,15 @@
 Tests uploader
 """
 
-from tiktok_uploader.upload import (
-    _convert_videos_dict,
-    _get_valid_schedule_minute,
-    _check_valid_schedule,
-)
-import os
 import datetime
-from freezegun import freeze_time
-from pytest import raises, fixture
+import os
+
 import pytz
+from freezegun import freeze_time
+from pytest import raises
+from tiktok_uploader.upload import (_check_valid_schedule,
+                                    _convert_videos_dict,
+                                    _get_valid_schedule_minute)
 
 # before each create a file called test.mp4 and test.jpg
 FILENAME = "test.mp4"

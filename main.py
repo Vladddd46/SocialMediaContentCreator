@@ -13,8 +13,14 @@ import schedule
 
 from configurations.config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
                                    MANAGABLE_ACCOUNT_DATA_PATH,
-                                   MANAGABLE_ACCOUNTS_CONFIG_PATH, USE_SHEDULE)
+                                   MANAGABLE_ACCOUNTS_CONFIG_PATH,
+                                   TMP_DIR_PATH, USE_SHEDULE)
 from src.adaptors.ContentToUploadAdaptor import json_to_ContentToUpload
+from src.ContentDownloader.YoutubeContentDownloader import \
+    YoutubeContentDownloader
+from src.entities.ContentToDownload import ContentToDownload
+from src.entities.ContentType import ContentType
+from src.entities.SourceType import SourceType
 from src.utils.fs_utils import (read_json, remove_directory, remove_file,
                                 remove_recursive, save_json)
 from src.utils.helpers import (construct_managable_accounts,
@@ -29,6 +35,7 @@ request_to_upload_queue = queue.Queue()
 """
 def clean():
     remove_directory(f"{LOG_PATH}")
+    remove_directory(f"{TMP_DIR_PATH}")
 
 
 """
@@ -78,6 +85,14 @@ def upload_scenario(account):
 
 
 def download_screnario(account):
+    downloader = YoutubeContentDownloader()
+    content_to_download = ContentToDownload(
+        "https://www.youtube.com/watch?v=qxFh2CegJdw",
+        SourceType.YOUTUBE_CHANNEL,
+        ContentType.YOUTUBE_VIDEO_INTERVIEW,
+    )
+    res = downloader.downloadContent(content_to_download, download_path=TMP_DIR_PATH)
+    print("video downloaded to: ", res)
     # There is no content to upload into managable account=account
     # That`s why we need to download new content from sources,
     # process it into highlights or some other content.
@@ -89,7 +104,7 @@ def download_screnario(account):
     # That`s all what should be done in this function.
     # After download scenario, upload scenario will read contentToUploadConfig.json and form new post and upload it
     # into managable account.
-    pass
+
 
 def handle_managable_account(account):
     content_to_upload_config_path = (

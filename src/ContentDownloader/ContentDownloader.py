@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
 
+from src.entities.ContentToDownload import ContentToDownload
+
 
 class ContentDownloader(ABC):
 
     @abstractmethod
-    def getContentFromSource(self, source, num_of_content=1):
+    def downloadContent(
+        self, content_to_download: ContentToDownload, download_path="."
+    ):
         pass

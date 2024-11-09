@@ -2,18 +2,14 @@
 CLI is a controller for the command line use of this library
 """
 
+import datetime
 from argparse import ArgumentParser
 from os.path import exists, join
-import datetime
-import json
 
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.upload import (
-    upload_video,
-)
 from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.auth import (
-    login_accounts,
-    save_cookies,
-)
+    login_accounts, save_cookies)
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.upload import \
+    upload_video
 
 
 def main():

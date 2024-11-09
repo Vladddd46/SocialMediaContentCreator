@@ -5,7 +5,6 @@ Uploads a series of videos to TikTok
 from sys import argv
 
 import pandas as pd
-
 from tiktok_uploader.upload import upload_video
 
 # NOTE: A TOML file with the following information also works

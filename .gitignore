@@ -7,3 +7,4 @@ configurations/managable_accounts.json
 *.mp4
 .DS_Store
 accounts_data
+tmp

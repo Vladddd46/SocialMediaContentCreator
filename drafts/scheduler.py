@@ -1,11 +1,14 @@
-import schedule
 import time
 
+import schedule
+
 config = {"frequency": "daily"}
+
 
 def upload_content(account):
     # Call the account's upload method with content
     print(f"Uploading content to {account}")
+
 
 def configure_scheduler():
     if config["frequency"] == "daily":
@@ -18,11 +21,13 @@ def configure_scheduler():
         schedule.every().day.at("13:00").do(upload_content, account="account1")
         schedule.every().day.at("18:00").do(upload_content, account="account1")
 
+
 def run_scheduler():
     while True:
         schedule.run_pending()
         time.sleep(1)
         print(1)
+
 
 configure_scheduler()
 run_scheduler()

@@ -2,11 +2,10 @@
 TikTok Uploader Initialization
 """
 
-from os.path import abspath, join, dirname
 import logging
+from os.path import abspath, dirname, join
 
 import toml
-
 
 ## Load Config
 src_dir = abspath(dirname(__file__))

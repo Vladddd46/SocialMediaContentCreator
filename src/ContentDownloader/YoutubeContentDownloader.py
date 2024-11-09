@@ -3,7 +3,9 @@ import re
 import subprocess
 
 from pytubefix import YouTube
+
 from src.ContentDownloader.ContentDownloader import ContentDownloader
+from src.entities.ContentToDownload import ContentToDownload
 from src.entities.SourceType import SourceType
 from src.utils.Logger import logger
 
@@ -90,14 +92,21 @@ class YoutubeContentDownloader(ContentDownloader):
             return final_path
         except Exception as e:
             logger.error(f"An error occurred while downloading youtube content: {e}")
-        return ""
-
-    def getContentFromSource(self, source, num_of_content=1):
-        if source != SourceType.YOUTUBE:
-            raise ValueError("Source type must be YOUTUBE.")
+        return None
 
     def downloadContentByUrl(self, youtube_video_url, download_path="."):
         logger.info(
             f"Request to download youtube content: {youtube_video_url} and save it into path={download_path}"
         )
         return self.__downloadContentByUrl(youtube_video_url, download_path)
+
+    def downloadContent(
+        self, content_to_download: ContentToDownload, download_path="."
+    ):
+        if content_to_download.source_type != SourceType.YOUTUBE_CHANNEL:
+            logger.error(
+                f"YoutubeContentDownloader can download only from YOUTUBE sources | source={content_to_download.source_type.value}"
+            )
+            return None
+        url_to_download = content_to_download.url
+        return self.__downloadContentByUrl(url_to_download, download_path)

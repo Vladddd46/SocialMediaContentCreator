@@ -1,11 +1,9 @@
 import os
 
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.auth import (
-    AuthBackend,
-)
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.upload import (
-    upload_videos,
-)
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.auth import \
+    AuthBackend
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.upload import \
+    upload_videos
 from src.utils.Logger import logger
 
 
@@ -35,7 +33,7 @@ class TiktokEntrypoint:
         if self.m_proxy != None:
             tmp_proxy = self.m_proxy.to_json()
         else:
-            tmp_proxy=None
+            tmp_proxy = None
         failed_videos = upload_videos(
             videos=videos, auth=auth, headless=True, proxy=tmp_proxy
         )

@@ -3,7 +3,6 @@ Test the browsers module.
 """
 
 import pytest
-
 import tiktok_uploader.browsers as browsers
 
 SUPPORTED_BROWSERS = ["chrome", "firefox", "safari", "edge"]

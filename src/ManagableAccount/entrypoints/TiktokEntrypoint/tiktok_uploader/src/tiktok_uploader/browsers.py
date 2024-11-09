@@ -1,26 +1,22 @@
 """Gets the browser's given the user's input"""
 
+from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.firefox.options import Options as FirefoxOptions
-from selenium.webdriver.safari.options import Options as SafariOptions
-from selenium.webdriver.edge.options import Options as EdgeOptions
-
 # Webdriver managers
 from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.edge.options import Options as EdgeOptions
+from selenium.webdriver.edge.service import Service as EdgeService
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.safari.options import Options as SafariOptions
+from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
-from selenium.webdriver.edge.service import Service as EdgeService
 
-from selenium import webdriver
-
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader import (
-    config,
-)
-from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.proxy_auth_extension.proxy_auth_extension import (
-    generate_proxy_auth_extension,
-)
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader import \
+    config
+from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.proxy_auth_extension.proxy_auth_extension import \
+    generate_proxy_auth_extension
 
 
 def get_browser(name: str = "chrome", options=None, *args, **kwargs) -> webdriver:
