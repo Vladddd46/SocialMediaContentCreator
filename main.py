@@ -14,17 +14,14 @@ import schedule
 from configurations.config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
                                    MANAGABLE_ACCOUNT_DATA_PATH,
                                    MANAGABLE_ACCOUNTS_CONFIG_PATH,
-                                   TMP_DIR_PATH, USE_SHEDULE)
+                                   SOURCES_CONFIG_PATH, TMP_DIR_PATH,
+                                   USE_SHEDULE)
 from src.adaptors.ContentToUploadAdaptor import json_to_ContentToUpload
-from src.ContentDownloader.YoutubeContentDownloader import \
-    YoutubeContentDownloader
-from src.entities.ContentToDownload import ContentToDownload
-from src.entities.ContentType import ContentType
-from src.entities.SourceType import SourceType
-from src.utils.fs_utils import (read_json, remove_directory, remove_file,
-                                remove_recursive, save_json)
+from src.adaptors.SourceAdaptor import json_list_to_Source_list
+from src.utils.fs_utils import read_json, remove_directory, remove_recursive
 from src.utils.helpers import (construct_managable_accounts,
-                               create_default_dir_stucture)
+                               create_default_dir_stucture,
+                               remove_uploaded_content)
 from src.utils.Logger import logger
 
 request_to_upload_queue = queue.Queue()
@@ -72,27 +69,21 @@ def upload_scenario(account):
 
     # if new content was uploaded, remove all entries associated with this content.
     if result == True:
-        # TODO: encapsulate it in function removeContent(contentToUpload)
-        for media_file in contentToUpload.mediaFiles:
-            rm_res = remove_file(media_file.path)
-            logger.info(f"removing mediaFile={media_file.path} | result={rm_res}")
-
-        # update contentToUpload config, so to remove already uploaded content
-        upd_cnfg_res = save_json(sorted_requests, content_to_upload_config_path)
-        logger.info(f"removing mediaFile={media_file.path} | result={upd_cnfg_res}")
+        remove_uploaded_content(contentToUpload, content_to_upload_config_path)
 
     return result
 
 
 def download_screnario(account):
-    downloader = YoutubeContentDownloader()
-    content_to_download = ContentToDownload(
-        "https://www.youtube.com/watch?v=qxFh2CegJdw",
-        SourceType.YOUTUBE_CHANNEL,
-        ContentType.YOUTUBE_VIDEO_INTERVIEW,
-    )
-    res = downloader.downloadContent(content_to_download, download_path=TMP_DIR_PATH)
-    print("video downloaded to: ", res)
+
+    sources_json = read_json(SOURCES_CONFIG_PATH)
+    all_sources = json_list_to_Source_list(sources_json)
+
+    # content_to_download = ContentToDownloadDefiner.define(account, all_sources)
+    # downloader = YoutubeContentDownloader()
+    # res = downloader.downloadContent(content_to_download, download_path=TMP_DIR_PATH)
+    # print("video downloaded to: ", res)
+
     # There is no content to upload into managable account=account
     # That`s why we need to download new content from sources,
     # process it into highlights or some other content.

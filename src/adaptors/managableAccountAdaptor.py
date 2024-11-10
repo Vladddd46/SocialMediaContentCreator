@@ -62,6 +62,8 @@ def json_to_managable_account(data: Dict) -> Optional[ManagableAccount]:
                 "Error happened during parsing managable accounts config: scheduler is not parsed"
             )
 
+    sources = data.get("sources", [])
+
     # Create and return the correct ManagableAccount instance based on account type
     if account_type == AccountType.TIKTOK:
         return TiktokManagableAccount(
@@ -72,6 +74,7 @@ def json_to_managable_account(data: Dict) -> Optional[ManagableAccount]:
             credentials=credentials,
             accountType=account_type,
             schedule=schedule,
+            sources=sources,
         )
 
     return None

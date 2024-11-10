@@ -15,3 +15,4 @@ TAGS = "#Фейгин #Портников #Политика2024 #Украина�
 
 
 MANAGABLE_ACCOUNTS_CONFIG_PATH = "configurations/managable_accounts.json"
+SOURCES_CONFIG_PATH = "./configurations/sources.json"

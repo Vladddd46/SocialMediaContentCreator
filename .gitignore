@@ -8,3 +8,4 @@ configurations/managable_accounts.json
 .DS_Store
 accounts_data
 tmp
+configurations/sources.json

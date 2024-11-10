@@ -5,6 +5,7 @@ from configurations.config import (CONTENT_DIR_NAME,
 
 from src.adaptors.ManagableAccountAdaptor import \
     json_to_managable_accounts_list
+from src.entities.ContentToUpload import ContentToUpload
 from src.utils.fs_utils import (create_directory_if_not_exist,
                                 create_file_if_not_exists, read_json_file)
 from src.utils.Logger import logger
@@ -41,3 +42,22 @@ def create_default_dir_stucture(managable_accounts):
         )
     create_directory_if_not_exist(TMP_DIR_PATH)
     logger.info(f"Default directory structure is created")
+
+
+def remove_uploaded_content(
+    content_to_upload: ContentToUpload, upload_requests_config_path: str
+):
+    for media_file in contentToUpload.mediaFiles:
+        rm_res = remove_file(media_file.path)
+        logger.info(f"removing mediaFile={media_file.path} | result={rm_res}")
+
+    # update contentToUpload config, so to remove already uploaded content
+    content_to_upload_requests = read_json(upload_requests_config_path)
+    if len(content_to_upload_requests) > 0:
+
+        # remove first sorted request because it was already handled.
+        sorted_requests = sorted(content_to_upload_requests, key=lambda x: x["cid"])
+        contentToUpload_json = sorted_requests.pop(0)
+
+        upd_cnfg_res = save_json(sorted_requests, upload_requests_config_path)
+        logger.info(f"removing mediaFile={media_file.path} | result={upd_cnfg_res}")

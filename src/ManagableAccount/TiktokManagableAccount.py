@@ -2,6 +2,8 @@
 # date: 31.10.2024
 # brief: Represents a TikTok-specific implementation of ManagableAccount.
 
+from typing import List
+
 from configurations.config import TIKTOK_COOKIES_PATH
 
 from src.entities.AccountCredentials import AccountCredentials
@@ -26,9 +28,10 @@ class TiktokManagableAccount(ManagableAccount):
         credentials: AccountCredentials,
         accountType: AccountType,
         schedule: Schedule,
+        sources: List[str],
     ):
         super().__init__(
-            name, description, url, proxy, credentials, accountType, schedule
+            name, description, url, proxy, credentials, accountType, schedule, sources
         )
         cookies_for_login_in_tiktok_account_path = (
             self.get_account_dir_path() + TIKTOK_COOKIES_PATH

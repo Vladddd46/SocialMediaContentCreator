@@ -6,6 +6,7 @@
 """
 
 from abc import ABC, abstractmethod
+from typing import List
 
 from configurations.config import MANAGABLE_ACCOUNT_DATA_PATH
 
@@ -28,6 +29,7 @@ class ManagableAccount(ABC):
         credentials: AccountCredentials,
         accountType: AccountType,
         schedule: Schedule,
+        sources: List[str],
     ):
         self.name = name
         self.description = description
@@ -36,6 +38,7 @@ class ManagableAccount(ABC):
         self.credentials = credentials
         self.accountType = accountType
         self.schedule = schedule
+        self.sources = sources
 
     def get_account_dir_path(self):
         return f"{MANAGABLE_ACCOUNT_DATA_PATH}/{self.accountType.value}/{self.name}/"
