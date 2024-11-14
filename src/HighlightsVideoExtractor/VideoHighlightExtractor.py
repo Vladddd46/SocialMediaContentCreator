@@ -3,7 +3,6 @@ import re
 
 import moviepy.editor as mp
 import whisper
-from sklearn.feature_extraction.text import TfidfVectorizer
 from transformers import pipeline
 
 
@@ -271,55 +270,3 @@ class VideoHighlightExtractor:
 
             clip.write_videofile(output_path, codec="libx264", audio_codec="aac")
             print(f"Saved highlight {idx + 1} to {output_path}")
-
-    def generate_hashtags(self, highlight_path, max_hashtags=10):
-        """
-        Generate a list of hashtags based on the content of a video highlight.
-
-        :param highlight_path: Path to the video highlight.
-        :param max_hashtags: Maximum number of hashtags to generate.
-        :return: A string of hashtags for TikTok.
-        """
-        print("Transcribing highlight for hashtag generation...")
-        transcript, _ = self._transcribe_audio(highlight_path)
-
-        print("Extracting key phrases...")
-        keywords = self._extract_keywords(transcript)
-
-        # Create hashtags by adding a '#' before each keyword and replacing spaces with underscores
-        hashtags = [
-            f"#{keyword.replace(' ', '_')}" for keyword in keywords[:max_hashtags]
-        ]
-
-        # Join hashtags into a single string suitable for TikTok
-        hashtags_string = " ".join(hashtags)
-
-        print(f"Generated hashtags: {hashtags_string}")
-        return hashtags_string
-
-    def _extract_keywords(self, text, max_features=20):
-        """
-        Extract key phrases from the text using TF-IDF.
-
-        :param text: Text from which to extract key phrases.
-        :param max_features: Maximum number of features to consider for TF-IDF.
-        :return: List of keywords sorted by importance.
-        """
-        # Preprocess text: remove punctuation, convert to lowercase
-        text = re.sub(r"[^\w\s]", "", text.lower())
-
-        # Use TF-IDF to extract keywords
-        vectorizer = TfidfVectorizer(max_features=max_features, stop_words="english")
-        tfidf_matrix = vectorizer.fit_transform([text])
-
-        # Extract feature names and their corresponding scores
-        feature_names = vectorizer.get_feature_names_out()
-        scores = tfidf_matrix.toarray().flatten()
-
-        # Sort features by their scores in descending order
-        sorted_keywords = sorted(
-            zip(feature_names, scores), key=lambda x: x[1], reverse=True
-        )
-        keywords = [keyword for keyword, score in sorted_keywords]
-
-        return keywords

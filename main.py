@@ -18,12 +18,13 @@ from configurations.config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
                                    USE_SHEDULE)
 from src.adaptors.ContentToUploadAdaptor import json_to_ContentToUpload
 from src.adaptors.SourceAdaptor import json_list_to_Source_list
-from src.utils.fs_utils import (read_json, remove_directory, remove_file,
-                                remove_recursive)
+from src.utils.fs_utils import read_json, remove_directory, remove_recursive
 from src.utils.helpers import (construct_managable_accounts,
                                create_default_dir_stucture,
                                get_content_download_definer,
-                               get_content_downloader, remove_uploaded_content)
+                               get_content_downloader,
+                               get_highlights_video_extractor,
+                               remove_uploaded_content)
 from src.utils.Logger import logger
 
 request_to_upload_queue = queue.Queue()
@@ -121,7 +122,15 @@ def download_screnario(account):
             continue
 
         #
-        print(f"cut content: {downloaded_path} into highlights")
+        extractor = get_highlights_video_extractor(source.content_type)
+        if extractor == None:
+            logger.info(
+                f"Can not determine extractor for content_type={content_type}, skipping source={source.name}"
+            )
+            continue
+        extractor.extract_highlights(
+            source_content_path=".", destination_for_saving_highlights="."
+        )
         #
 
         # remove content because it was already proccessed

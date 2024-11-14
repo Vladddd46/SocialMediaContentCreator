@@ -11,8 +11,11 @@ from src.ContentDownloader.YoutubeContentDownloader import \
     YoutubeContentDownloader
 from src.entities.ContentToDownload import ContentToDownload
 from src.entities.ContentToUpload import ContentToUpload
+from src.entities.ContentType import ContentType
 from src.entities.Source import Source
 from src.entities.SourceType import SourceType
+from src.HighlightsVideoExtractor.TextualHighlightsVideoExtractor import \
+    TextualHighlightsVideoExtractor
 from src.utils.fs_utils import (create_directory_if_not_exist,
                                 create_file_if_not_exists, read_json_file)
 from src.utils.Logger import logger
@@ -85,3 +88,10 @@ def get_content_download_definer(source: Source):
     if source.source_type == SourceType.YOUTUBE_CHANNEL.value:
         definer = YoutubeContentDownloadDefiner()
     return definer
+
+
+def get_highlights_video_extractor(content_type: ContentType):
+    extractor = None
+    if content_type == ContentType.YOUTUBE_VIDEO_INTERVIEW.value:
+        extractor = TextualHighlightsVideoExtractor()
+    return extractor
