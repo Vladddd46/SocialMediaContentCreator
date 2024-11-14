@@ -18,27 +18,22 @@ from configurations.config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
                                    USE_SHEDULE)
 from src.adaptors.ContentToUploadAdaptor import json_to_ContentToUpload
 from src.adaptors.SourceAdaptor import json_list_to_Source_list
-from src.utils.fs_utils import read_json, remove_directory, remove_recursive
+from src.utils.fs_utils import (read_json, remove_directory, remove_file,
+                                remove_recursive)
 from src.utils.helpers import (construct_managable_accounts,
                                create_default_dir_stucture,
-                               remove_uploaded_content)
+                               get_content_download_definer,
+                               get_content_downloader, remove_uploaded_content)
 from src.utils.Logger import logger
 
 request_to_upload_queue = queue.Queue()
 
-"""
-# User run python main --clean
-# Remove log files
-"""
+
 def clean():
     remove_directory(f"{LOG_PATH}")
     remove_directory(f"{TMP_DIR_PATH}")
 
 
-"""
-# User run python main --full_clean
-# Remove all files, that were created during program execution.
-"""
 def full_clean():
     clean()
     remove_recursive("__pycache__")
@@ -61,40 +56,76 @@ def upload_scenario(account):
 
     # sort requests, so to take the oldest contentToUpload.
     sorted_requests = sorted(content_to_upload_requests, key=lambda x: x["cid"])
-    contentToUpload_json = sorted_requests.pop(0)
-    contentToUpload = json_to_ContentToUpload(contentToUpload_json)
+    content_to_upload_json = sorted_requests.pop(0)
+    content_to_upload = json_to_ContentToUpload(content_to_upload_json)
 
     # upload new content into account.
-    result = account.upload(contentToUpload)
+    result = account.upload(content_to_upload)
 
     # if new content was uploaded, remove all entries associated with this content.
     if result == True:
-        remove_uploaded_content(contentToUpload, content_to_upload_config_path)
+        remove_uploaded_content(content_to_upload, content_to_upload_config_path)
 
     return result
 
 
-def download_screnario(account):
+def handle_download_for_source(source, account):
+    logger.info(f"Start downloading process for source={source}")
 
+    content_to_download_definer = get_content_download_definer(source)
+    logger.info(f"Determine download definer={content_to_download_definer}")
+    if content_to_download_definer == None:
+        logger.error(f"DownloadDefiner is None, skipping source={source.name}")
+        return None
+
+    content_to_download = content_to_download_definer.define_content_to_download(
+        source, account
+    )
+    if content_to_download == None:
+        logger.error(f"Determined content is None, skipping source={source.name}")
+        return None
+    logger.info(
+        f"Defined content to download={content_to_download} from source={source.name}"
+    )
+
+    downloader = get_content_downloader(content_to_download)
+    logger.info(f"Determine downloader={downloader} for source={source.name}")
+    if downloader == None:
+        logger.error(f"Downloader is None, skipping source={source.name}")
+        return None
+
+    dowanloded_content_path = downloader.downloadContent(
+        content_to_download, download_path=TMP_DIR_PATH
+    )
+    if dowanloded_content_path == None:
+        logger.error(f"Content was not download, skipping source={source.name}")
+        return None
+    logger.info(
+        f"Content from source={source.name} is downloaded to {dowanloded_content_path}"
+    )
+    return dowanloded_content_path
+
+
+def download_screnario(account):
     sources_json = read_json(SOURCES_CONFIG_PATH)
     all_sources = json_list_to_Source_list(sources_json)
 
-    # content_to_download = ContentToDownloadDefiner.define(account, all_sources)
-    # downloader = YoutubeContentDownloader()
-    # res = downloader.downloadContent(content_to_download, download_path=TMP_DIR_PATH)
-    # print("video downloaded to: ", res)
+    # extract only sources, which account subscribed to.
+    filtered_sources = [
+        source for source in all_sources if source.name in account.sources
+    ]
 
-    # There is no content to upload into managable account=account
-    # That`s why we need to download new content from sources,
-    # process it into highlights or some other content.
-    # For this we need.
-    # 1. download content from sources.
-    # 2. process it and place it into accounts_data/accountType/account_name/contentToUpload folder
-    # 3. add ContentToUpload json object into accounts_data/accountType/account_name/contentToUploadConfig.json file.
-    # see ContentToUpload in src/entities/ContentToUpload.py
-    # That`s all what should be done in this function.
-    # After download scenario, upload scenario will read contentToUploadConfig.json and form new post and upload it
-    # into managable account.
+    for source in filtered_sources:
+        downloaded_path = handle_download_for_source(source, account)
+        if downloaded_path == None:
+            continue
+
+        #
+        print(f"cut content: {downloaded_path} into highlights")
+        #
+
+        # remove content because it was already proccessed
+        # remove_file(downloaded_path)
 
 
 def handle_managable_account(account):

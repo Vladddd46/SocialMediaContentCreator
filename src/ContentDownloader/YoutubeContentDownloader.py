@@ -103,10 +103,16 @@ class YoutubeContentDownloader(ContentDownloader):
     def downloadContent(
         self, content_to_download: ContentToDownload, download_path="."
     ):
-        if content_to_download.source_type != SourceType.YOUTUBE_CHANNEL:
+        if content_to_download.source_type != SourceType.YOUTUBE_CHANNEL.value:
             logger.error(
                 f"YoutubeContentDownloader can download only from YOUTUBE sources | source={content_to_download.source_type.value}"
             )
             return None
         url_to_download = content_to_download.url
         return self.__downloadContentByUrl(url_to_download, download_path)
+
+    def __str__(self):
+        return f"YoutubeContentDownloader"
+
+    def __repr__(self):
+        return f"YoutubeContentDownloader"

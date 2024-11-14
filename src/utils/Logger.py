@@ -32,7 +32,7 @@ class Logger:
                 )
                 self.logger.addHandler(file_handler)
 
-    def info(self, msg, only_debug_mode=True):
+    def info(self, msg, only_debug_mode=False):
         if only_debug_mode == True and DEBUG_MODE == False:
             return
         if LOG_ENABLED == True:

@@ -1,11 +1,18 @@
-from configurations.config import (CONTENT_DIR_NAME,
+from configurations.config import (CACHE_DIR_NAME, CONTENT_DIR_NAME,
                                    CONTENT_TO_UPLOAD_CONFIG_FILENAME,
                                    CREDS_DIR_NAME, MANAGABLE_ACCOUNT_DATA_PATH,
                                    TMP_DIR_PATH)
 
 from src.adaptors.ManagableAccountAdaptor import \
     json_to_managable_accounts_list
+from src.ContentDownloadDefiner.YoutubeContentDownloadDefiner import \
+    YoutubeContentDownloadDefiner
+from src.ContentDownloader.YoutubeContentDownloader import \
+    YoutubeContentDownloader
+from src.entities.ContentToDownload import ContentToDownload
 from src.entities.ContentToUpload import ContentToUpload
+from src.entities.Source import Source
+from src.entities.SourceType import SourceType
 from src.utils.fs_utils import (create_directory_if_not_exist,
                                 create_file_if_not_exists, read_json_file)
 from src.utils.Logger import logger
@@ -35,6 +42,9 @@ def create_default_dir_stucture(managable_accounts):
         create_directory_if_not_exist(
             f"{MANAGABLE_ACCOUNT_DATA_PATH}/{account.accountType.value}/{account.name}/{CONTENT_DIR_NAME}"
         )
+        create_directory_if_not_exist(
+            f"{MANAGABLE_ACCOUNT_DATA_PATH}/{account.accountType.value}/{account.name}/{CACHE_DIR_NAME}"
+        )
         create_file_if_not_exists(
             CONTENT_TO_UPLOAD_CONFIG_FILENAME,
             f"{MANAGABLE_ACCOUNT_DATA_PATH}/{account.accountType.value}/{account.name}/",
@@ -61,3 +71,17 @@ def remove_uploaded_content(
 
         upd_cnfg_res = save_json(sorted_requests, upload_requests_config_path)
         logger.info(f"removing mediaFile={media_file.path} | result={upd_cnfg_res}")
+
+
+def get_content_downloader(content_to_download: ContentToDownload):
+    downloader = None
+    if content_to_download.source_type == SourceType.YOUTUBE_CHANNEL.value:
+        downloader = YoutubeContentDownloader()
+    return downloader
+
+
+def get_content_download_definer(source: Source):
+    definer = None
+    if source.source_type == SourceType.YOUTUBE_CHANNEL.value:
+        definer = YoutubeContentDownloadDefiner()
+    return definer

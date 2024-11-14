@@ -1,5 +1,6 @@
 from typing import Dict, List
 
+from src.entities.ContentType import ContentType
 from src.entities.Source import Source
 from src.entities.SourceType import SourceType
 from src.utils.Logger import logger
@@ -10,6 +11,7 @@ def json_to_Source(json_data: Dict) -> Source:
     description = json_data.get("description", "")
     url = json_data.get("url", "")
     source_type = json_data.get("source_type", SourceType.UNSPECIFIED)
+    content_type = json_data.get("content_type", ContentType.UNSPECIFIED)
 
     if name == "":
         logger.warning(
@@ -27,8 +29,12 @@ def json_to_Source(json_data: Dict) -> Source:
         logger.warning(
             "Source source_type is UNSPECIFIED: are you sure you have correct sources config?"
         )
+    elif content_type == ContentType.UNSPECIFIED:
+        logger.warning(
+            "Source content_type is UNSPECIFIED: are you sure you have correct sources config?"
+        )
 
-    source = Source(name, description, url, source_type)
+    source = Source(name, description, url, source_type, content_type)
     return source
 
 
