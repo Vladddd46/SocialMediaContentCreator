@@ -11,7 +11,8 @@ import time
 
 import schedule
 
-from configurations.config import (CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
+from configurations.config import (CONTENT_DIR_NAME,
+                                   CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
                                    MANAGABLE_ACCOUNT_DATA_PATH,
                                    MANAGABLE_ACCOUNTS_CONFIG_PATH,
                                    SOURCES_CONFIG_PATH, TMP_DIR_PATH,
@@ -128,9 +129,12 @@ def download_screnario(account):
                 f"Can not determine extractor for content_type={content_type}, skipping source={source.name}"
             )
             continue
-        extractor.extract_highlights(
-            source_content_path=".", destination_for_saving_highlights="."
+        logger.info(f"Determined content extractor {extractor}")
+        res = extractor.extract_highlights(
+            source_content_path=downloaded_path,
+            destination_for_saving_highlights=f"{account.get_account_dir_path()}/{CONTENT_DIR_NAME}",
         )
+        print(res)
         #
 
         # remove content because it was already proccessed

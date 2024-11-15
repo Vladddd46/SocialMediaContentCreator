@@ -6,6 +6,7 @@
         "proxy": null,
         "credentials": null,
         "accountType": "TIKTOK",
-        "schedule": {"every_days": 1, "at_time": ["09:00", "15:00", "20:00"]}
+        "schedule": {"every_days": 1, "at_time": ["09:00", "15:00", "20:00"]},
+        "sources": ["source_name"]
     }
 ]

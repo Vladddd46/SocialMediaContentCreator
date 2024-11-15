@@ -1,5 +1,8 @@
-from pytubefix import Channel
 from datetime import datetime, timezone
+
+from pytubefix import Channel
+
+
 def get_streams_or_videos(channel_url, content_type, max_results):
     """
     Fetches live streams or regular videos from a YouTube channel using pytube.
@@ -33,6 +36,7 @@ def get_streams_or_videos(channel_url, content_type, max_results):
         return result
     except Exception as e:
         raise RuntimeError(f"Failed to fetch {content_type} content: {e}")
+
 
 # Example usage
 if __name__ == "__main__":

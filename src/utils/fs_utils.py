@@ -203,3 +203,26 @@ def save_json(data, file_path: str) -> None:
     except Exception as e:
         pass
     return False
+
+
+def list_non_hidden_files(folder_path):
+    """
+    Returns a list of paths to all non-hidden files in the specified folder.
+
+    Parameters:
+        folder_path (str): Path to the folder.
+
+    Returns:
+        list: List of paths to all non-hidden files in the folder.
+    """
+    if not os.path.isdir(folder_path):
+        return []
+
+    # List all non-hidden files in the folder
+    files = [
+        os.path.join(folder_path, f)
+        for f in os.listdir(folder_path)
+        if not f.startswith(".") and os.path.isfile(os.path.join(folder_path, f))
+    ]
+
+    return files
