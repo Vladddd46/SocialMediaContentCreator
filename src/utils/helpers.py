@@ -1,10 +1,11 @@
 import os
 import re
 
-from configurations.config import (CACHE_DIR_NAME, CONTENT_DIR_NAME,
-                                   CONTENT_TO_UPLOAD_CONFIG_FILENAME,
-                                   CREDS_DIR_NAME, HIGHLIGHT_NAME,
-                                   MANAGABLE_ACCOUNT_DATA_PATH, TMP_DIR_PATH)
+from configurations.config import (
+    CACHE_DIR_NAME, CONTENT_DIR_NAME, CONTENT_TO_UPLOAD_CONFIG_FILENAME,
+    CREDS_DIR_NAME, DOWNLOADED_CONTENT_CACHE_PATH, HIGHLIGHT_NAME,
+    MANAGABLE_ACCOUNT_DATA_PATH,
+    NOT_PROCESSED_RAW_DOWNLOADED_CONTENT_FILE_NAME, TMP_DIR_PATH)
 
 from src.adaptors.ContentToUploadAdaptor import \
     json_list_to_ContentToUpload_list
@@ -61,6 +62,11 @@ def create_default_dir_stucture(managable_accounts):
         create_file_if_not_exists(
             CONTENT_TO_UPLOAD_CONFIG_FILENAME,
             f"{MANAGABLE_ACCOUNT_DATA_PATH}/{account.accountType.value}/{account.name}/",
+            "[]",
+        )
+        create_file_if_not_exists(
+            NOT_PROCESSED_RAW_DOWNLOADED_CONTENT_FILE_NAME,
+            f"{MANAGABLE_ACCOUNT_DATA_PATH}/{account.accountType.value}/{account.name}/{CACHE_DIR_NAME}",
             "[]",
         )
     create_directory_if_not_exist(TMP_DIR_PATH)
@@ -232,3 +238,10 @@ def update_uploading_config_with_new_content(account, new_content):
     json_data = [i.to_dict() for i in current_content_to_upload]
     save_json(json_data, path_to_config)
     logger.info("Uploading config is updated")
+
+
+def cache_downloaded_content(content: ContentToDownload, account: ManagableAccount):
+    cache_file_path = f"{account.get_account_dir_path()}/{CACHE_DIR_NAME}/{DOWNLOADED_CONTENT_CACHE_PATH}"
+    cached_downloaded_content = read_json(cache_file_path)
+    cached_downloaded_content.append(content.url)
+    save_json(cached_downloaded_content, cache_file_path)

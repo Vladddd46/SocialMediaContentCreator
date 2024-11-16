@@ -52,7 +52,8 @@ class YoutubeContentDownloader(ContentDownloader):
             "experimental",
             output_path,
         ]
-        subprocess.run(ffmpeg_command, check=True)
+        with open(os.devnull, "w") as devnull:
+            subprocess.run(ffmpeg_command, check=True, stdout=devnull, stderr=devnull)
 
     def __cleanup_temp_files(self, *file_paths):
         for file_path in file_paths:

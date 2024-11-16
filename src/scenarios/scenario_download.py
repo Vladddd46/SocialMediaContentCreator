@@ -11,18 +11,23 @@
 @return: void
 """
 
-from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH
+from typing import List
 
+from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH,CACHE_DIR_NAME, NOT_PROCESSED_RAW_DOWNLOADED_CONTENT_FILE_NAME
+
+from src.ContentFilters.TiktokTagsAddFilter import TiktokTagsAddFilter
+from src.entities.ContentToUpload import ContentToUpload
 from src.entities.DownloadedRawContent import DownloadedRawContent
 from src.entities.Source import Source
 from src.ManagableAccount.ManagableAccount import ManagableAccount
-from src.utils.fs_utils import remove_files_from_folder
-from src.utils.helpers import (get_account_sources,
+from src.utils.helpers import (cache_downloaded_content, get_account_sources,
                                get_content_download_definer,
                                get_content_downloader,
                                get_highlights_video_extractor,
+                               remove_downloaded_raw_content,
                                update_uploading_config_with_new_content)
 from src.utils.Logger import logger
+from src.utils.fs_utils import read_json
 
 
 def _download_raw_content_from_source(
@@ -55,7 +60,18 @@ def _download_raw_content_from_source(
     downloaded_raw_content = downloader.downloadContent(
         content_to_download, download_path=TMP_DIR_PATH
     )
+
+    if downloaded_raw_content != None:
+        cache_downloaded_content(content_to_download, account)
     return downloaded_raw_content
+
+
+def _filter_content_to_upload(
+    content_to_upload: List[ContentToUpload], account: ManagableAccount
+):
+    tiktok_tags_filter = TiktokTagsAddFilter(account)
+    content_to_upload = tiktok_tags_filter.filter(content_to_upload)
+    return content_to_upload
 
 
 def _download_content_from_source(source: Source, account: ManagableAccount):
@@ -75,9 +91,10 @@ def _download_content_from_source(source: Source, account: ManagableAccount):
     content_to_upload = extractor.extract_highlights(
         downloaded_raw_content=downloaded_raw_content
     )
-
     # Extractor preprocess downloaded_raw_content and returned list[ContentToUpload]
-    # TODO: here we should add filters to ContentToUpload if it`s needed
+
+    # Add filters to the content_to_upload like audio/visual effects, subtitles, etc.
+    content_to_upload = _filter_content_to_upload(content_to_upload, account)
 
     # ContentToUpload is ready for uploading.
     # Moving ContentToUpload from tmp folder into account`s content folder.
@@ -85,9 +102,7 @@ def _download_content_from_source(source: Source, account: ManagableAccount):
     update_uploading_config_with_new_content(account, content_to_upload)
 
     # remove content of tmp folder
-    remove_files_from_folder(
-        TMP_DIR_PATH
-    )  # TODO: should delete only those files, which were created during download process
+    remove_downloaded_raw_content(downloaded_raw_content)
 
 
 def download_screnario(account: ManagableAccount):

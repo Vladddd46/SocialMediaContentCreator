@@ -11,16 +11,22 @@ import time
 
 import schedule
 
-from configurations.config import (LOG_PATH, MANAGABLE_ACCOUNT_DATA_PATH,
-                                   MANAGABLE_ACCOUNTS_CONFIG_PATH,
-                                   TMP_DIR_PATH, USE_SHEDULE)
+from configurations.config import (
+    LOG_PATH,
+    MANAGABLE_ACCOUNT_DATA_PATH,
+    MANAGABLE_ACCOUNTS_CONFIG_PATH,
+    TMP_DIR_PATH,
+    USE_SHEDULE,
+)
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.scenarios.scenario_download import download_screnario
 from src.scenarios.scenario_upload import upload_scenario
 from src.utils.fs_utils import remove_directory, remove_recursive
-from src.utils.helpers import (check_if_there_is_content_to_upload,
-                               construct_managable_accounts,
-                               create_default_dir_stucture)
+from src.utils.helpers import (
+    check_if_there_is_content_to_upload,
+    construct_managable_accounts,
+    create_default_dir_stucture,
+)
 from src.utils.Logger import logger
 
 request_to_upload_queue = queue.Queue()
