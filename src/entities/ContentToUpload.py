@@ -30,3 +30,11 @@ class ContentToUpload:
             f"\tText: {self.text}\n"
             f"\tMedia Files: {media_files_str}"
         )
+
+    def to_dict(self):
+        """Converts the ContentToUpload object into a dictionary."""
+        return {
+            "cid": self.cid,
+            "mediaFiles": [file.to_dict() for file in self.mediaFiles],
+            "text": self.text,
+        }

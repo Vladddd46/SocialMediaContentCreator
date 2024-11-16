@@ -12,3 +12,7 @@ class MediaFile:
 
     def __str__(self):
         return f"MediaFile(path={self.path} type={self.mtype.name})"
+
+    def to_dict(self):
+        """Converts the MediaFile object into a dictionary."""
+        return {"path": self.path, "mtype": self.mtype.name}

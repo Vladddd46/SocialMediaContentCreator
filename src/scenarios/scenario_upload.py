@@ -11,9 +11,10 @@ from configurations.config import CONTENT_TO_UPLOAD_CONFIG_FILENAME
 
 from src.adaptors.ContentToUploadAdaptor import json_to_ContentToUpload
 from src.ManagableAccount.ManagableAccount import ManagableAccount
+from src.utils.fs_utils import read_json
 from src.utils.helpers import remove_uploaded_content
 from src.utils.Logger import logger
-from src.utils.fs_utils import read_json
+
 
 def upload_scenario(account: ManagableAccount) -> bool:
 

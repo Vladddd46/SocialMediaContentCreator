@@ -1,7 +1,9 @@
+import os
+
 from configurations.config import (CACHE_DIR_NAME, CONTENT_DIR_NAME,
                                    CONTENT_TO_UPLOAD_CONFIG_FILENAME,
-                                   CREDS_DIR_NAME, MANAGABLE_ACCOUNT_DATA_PATH,
-                                   TMP_DIR_PATH)
+                                   CREDS_DIR_NAME, HIGHLIGHT_NAME,
+                                   MANAGABLE_ACCOUNT_DATA_PATH, TMP_DIR_PATH)
 
 from src.adaptors.ManagableAccountAdaptor import \
     json_to_managable_accounts_list
@@ -13,9 +15,10 @@ from src.ContentDownloader.YoutubeContentDownloader import \
 from src.entities.ContentToDownload import ContentToDownload
 from src.entities.ContentToUpload import ContentToUpload
 from src.entities.ContentType import ContentType
+from src.entities.DownloadedRawContent import DownloadedRawContent
 from src.entities.Source import Source
 from src.entities.SourceType import SourceType
-from src.HighlightsVideoExtractor.TextualHighlightsVideoExtractor import \
+from src.HighlightsExtractor.TextualHighlightsVideoExtractor import \
     TextualHighlightsVideoExtractor
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.utils.fs_utils import (create_directory_if_not_exist,
@@ -60,6 +63,11 @@ def create_default_dir_stucture(managable_accounts):
     logger.info(f"Default directory structure is created")
 
 
+def remove_downloaded_raw_content(downloaded_raw_content: DownloadedRawContent):
+    for file in downloaded_raw_content.mediaFiles:
+        remove_file(file.path)
+
+
 def remove_uploaded_content(
     content_to_upload: ContentToUpload, upload_requests_config_path: str
 ):
@@ -99,6 +107,7 @@ def get_highlights_video_extractor(content_type: ContentType):
     extractor = None
     if content_type == ContentType.YOUTUBE_VIDEO_INTERVIEW.value:
         extractor = TextualHighlightsVideoExtractor()
+    logger.info(f"Determined content extractor {extractor}")
     return extractor
 
 
@@ -125,3 +134,41 @@ def get_account_sources(path: str, account: ManagableAccount):
         source for source in all_sources if source.name in account.sources
     ]
     return filtered_sources
+
+
+def sort_highlights_folder(self, folder_path):
+    """
+    Renames highlight files in the folder so that they are sequentially numbered
+    starting from highlight_1.mp4.
+
+    Parameters:
+        folder_path (str): Path to the folder containing highlight files.
+    """
+    files = list_non_hidden_files(folder_path)
+
+    # Filter files that match the highlight_<int>.mp4 pattern
+    highlight_files = [
+        f
+        for f in files
+        if os.path.basename(f).startswith(f"{HIGHLIGHT_NAME}_") and f.endswith(".mp4")
+    ]
+
+    # Extract numerical indices and sort by them
+    indexed_files = []
+    for file in highlight_files:
+        try:
+            index = int(os.path.basename(file).split("_")[1].split(".mp4")[0])
+            indexed_files.append((index, file))
+        except ValueError:
+            continue
+
+    indexed_files.sort()  # Sort by index
+
+    # Rename files sequentially starting from highlight_1.mp4
+    for i, (_, old_path) in enumerate(indexed_files, start=1):
+        new_name = f"{HIGHLIGHT_NAME}_{i}.mp4"
+        new_path = os.path.join(folder_path, new_name)
+        os.rename(old_path, new_path)
+
+
+

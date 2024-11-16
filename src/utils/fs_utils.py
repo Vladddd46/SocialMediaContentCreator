@@ -195,7 +195,7 @@ def read_json(file_path):
     return None
 
 
-def save_json(data, file_path: str) -> None:
+def save_json(data, file_path: str) -> bool:
     try:
         with open(file_path, "w", encoding="utf-8") as json_file:
             json.dump(data, json_file, ensure_ascii=False, indent=4)

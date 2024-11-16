@@ -11,14 +11,15 @@
 @return: void
 """
 
-from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH
+from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH, CONTENT_DIR_NAME
 
 from src.entities.DownloadedRawContent import DownloadedRawContent
 from src.entities.Source import Source
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.utils.helpers import (get_account_sources,
                                get_content_download_definer,
-                               get_content_downloader)
+                               get_content_downloader,
+                               remove_downloaded_raw_content, get_highlights_video_extractor)
 from src.utils.Logger import logger
 
 
@@ -60,25 +61,28 @@ def _download_content_from_source(source: Source, account: ManagableAccount):
     if downloaded_raw_content == None:
         return None  # Failed while downloding content.
 
-    print(downloaded_raw_content)
-    # #
-    # extractor = get_highlights_video_extractor(source.content_type)
-    # if extractor == None:
-    #     logger.info(
-    #         f"Can not determine extractor for content_type={content_type}, skipping source={source.name}"
-    #     )
-    #     continue
-    # logger.info(f"Determined content extractor {extractor}")
+    # Determine, which content extractor to use based on content type.
+    # For example: for youtube video interviews it will be one extractor.
+    # 			   for boxing video it will be another extractor.
+    extractor = get_highlights_video_extractor(source.content_type)
+    if extractor == None:
+        return None
 
-    # res = extractor.extract_highlights(
-    #     source_content_path=downloaded_raw_content,
-    #     destination_for_saving_highlights=f"{account.get_account_dir_path()}/{CONTENT_DIR_NAME}",
-    # )
-    # print(res)
-    #
+    # Extract highlights and save them into destination_for_saving_highlights.
+    # Also add note about highlight into contentToUploadeConfig.json
+    account_content_dir_path = f"{account.get_account_dir_path()}/{CONTENT_DIR_NAME}"
+    res = extractor.extract_highlights(
+        account=account,
+        downloaded_raw_content=downloaded_raw_content,
+        destination_for_saving_highlights=account_content_dir_path,
+    )
+
+    # TODO: here should be functionality of adding filters contentToUpload
+    # ...
+    # ...
 
     # remove content because it was already proccessed
-    # remove_file(downloaded_raw_content)
+    remove_downloaded_raw_content(downloaded_raw_content)
 
 
 def download_screnario(account: ManagableAccount):

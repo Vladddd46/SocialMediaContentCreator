@@ -2,16 +2,37 @@ import os
 
 import moviepy.editor as mp
 import whisper
-from configurations.config import HIGHLIGHT_NAME
+from configurations.config import CONTENT_DIR_NAME, HIGHLIGHT_NAME
 from transformers import pipeline
-
-from src.HighlightsVideoExtractor.HighlightsVideoExtractor import \
-    HighlightsVideoExtractor
-from src.utils.fs_utils import is_path_exists, list_non_hidden_files
+from src.ManagableAccount.ManagableAccount import ManagableAccount
+from src.entities.ContentToUpload import ContentToUpload
+from src.entities.MediaFile import MediaFile
+from src.entities.MediaType import MediaType
+from src.HighlightsExtractor.HighlightsExtractor import HighlightsExtractor
+from src.utils.fs_utils import is_path_exists, read_json
 from src.utils.Logger import logger
+from src.entities.DownloadedRawContent import DownloadedRawContent
 
 
-class TextualHighlightsVideoExtractor(HighlightsVideoExtractor):
+def get_content_to_upload_config_last_index(path_to_config: str):
+    content_to_upload_config_json = read_json(path_to_config)
+    content_to_upload = json_list_to_ContentToUpload_list(content_to_upload_config_json)
+    max_index = 0
+    for i in content_to_upload:
+        if i.cid > max_index:
+            max_index = i.cid
+    return max_index + 1
+
+def add_new_contentToUpload_to_config(config_path, content_to_upload):
+    content_to_upload_config_json = read_json(path_to_config)
+
+    for content in content_to_upload:
+        tmp = content.to_dict()
+        content_to_upload_config_json.append(tmp)
+    save_json(config_path, content_to_upload_config_json)
+
+
+class TextualHighlightsVideoExtractor(HighlightsExtractor):
 
     def __init__(self, model_name="base", sentiment_model="xlm-roberta-base"):
         # Load Whisper model and multilingual sentiment analyzer
@@ -20,6 +41,7 @@ class TextualHighlightsVideoExtractor(HighlightsVideoExtractor):
 
         # Set environment variable to avoid parallelism warnings
         os.environ["TOKENIZERS_PARALLELISM"] = "false"
+        self.account = None
 
     def _load_video(self, video_path):
         if not os.path.exists(video_path):
@@ -83,46 +105,16 @@ class TextualHighlightsVideoExtractor(HighlightsVideoExtractor):
     def _select_highlights(self, scored_segments, max_highlights):
         return scored_segments[:max_highlights]
 
-    def _sort_highlights_folder(self, folder_path):
-        """
-        Renames highlight files in the folder so that they are sequentially numbered
-        starting from highlight_1.mp4.
-
-        Parameters:
-            folder_path (str): Path to the folder containing highlight files.
-        """
-        files = list_non_hidden_files(folder_path)
-
-        # Filter files that match the highlight_<int>.mp4 pattern
-        highlight_files = [
-            f
-            for f in files
-            if os.path.basename(f).startswith(f"{HIGHLIGHT_NAME}_")
-            and f.endswith(".mp4")
-        ]
-
-        # Extract numerical indices and sort by them
-        indexed_files = []
-        for file in highlight_files:
-            try:
-                index = int(os.path.basename(file).split("_")[1].split(".mp4")[0])
-                indexed_files.append((index, file))
-            except ValueError:
-                continue
-
-        indexed_files.sort()  # Sort by index
-
-        # Rename files sequentially starting from highlight_1.mp4
-        for i, (_, old_path) in enumerate(indexed_files, start=1):
-            new_name = f"{HIGHLIGHT_NAME}_{i}.mp4"
-            new_path = os.path.join(folder_path, new_name)
-            os.rename(old_path, new_path)
-
     def _extract_highlights(
         self, video, highlights, output_folder, max_duration, context_buffer
     ):
-
-        self._sort_highlights_folder(output_folder)
+        content_to_upload_res = []
+        config_path = f"{self.account.get_account_dir_path()}/{CONTENT_DIR_NAME}"
+        last_index = get_content_to_upload_config_last_index(config_path)
+        logger.info(
+            f"Extractor: found last index in {CONTENT_DIR_NAME} index={last_index}"
+        )
+        # sort_highlights_folder(output_folder) # TODO it corrupts contentToUpload config.
 
         for idx, segment in enumerate(highlights):
             start_time = max(segment["start"] - context_buffer, 0)
@@ -134,11 +126,20 @@ class TextualHighlightsVideoExtractor(HighlightsVideoExtractor):
             clip = video.subclip(start_time, end_time)
             clip = clip.set_audio(video.audio.subclip(start_time, end_time))
 
-            output_path = os.path.join(output_folder, f"{HIGHLIGHT_NAME}_{idx + 1}.mp4")
+            output_path = os.path.join(
+                output_folder, f"{HIGHLIGHT_NAME}_{idx + last_index}.mp4"
+            )
             clip.write_videofile(output_path, codec="libx264", audio_codec="aac")
             logger.info(
-                f"Saved highlight {idx + 1} to {output_path}", only_debug_mode=True
+                f"Saved highlight {idx + last_index} to {output_path}",
+                only_debug_mode=True,
             )
+
+            media_file = MediaFile(output_path, MediaType.VIDEO)
+            content_to_upload = ContentToUpload([media_file], "", idx + last_index)
+            content_to_upload_res.append(content_to_upload)
+        add_new_contentToUpload_to_config(config_path, content_to_upload_res)
+        return content_to_upload_res
 
     def _get_highlights(
         self,
@@ -164,15 +165,29 @@ class TextualHighlightsVideoExtractor(HighlightsVideoExtractor):
         highlights = self._select_highlights(unique_highlights, max_highlights)
 
         logger.info(f"Extracting {len(highlights)} highlights...")
-        self._extract_highlights(
+        highlights = self._extract_highlights(
             video, highlights, highlights_path, max_duration, context_buffer
         )
 
         logger.info(f"Highlights saved to folder: {highlights_path}")
+        return highlights
 
     def extract_highlights(
-        self, source_content_path: str, destination_for_saving_highlights="."
+        self,
+        account: ManagableAccount,
+        downloaded_raw_content: DownloadedRawContent,
+        destination_for_saving_highlights=".",
     ):
+        if account == None:
+            logger.error("Account is None")
+            return None
+        self.account = account
+        if len(downloaded_raw_content.mediaFiles) == 0:
+            logger.warning(
+                "DownloadedRawContent has no mediaFiles to extract highlights"
+            )
+            return None
+        source_content_path = downloaded_raw_content.mediaFiles[0].path
         logger.info(
             f"Extracting highlights from content: {source_content_path} | Saving into {destination_for_saving_highlights}"
         )
