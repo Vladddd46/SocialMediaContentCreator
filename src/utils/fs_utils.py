@@ -294,3 +294,7 @@ def remove_files_from_folder(folder_path):
         if os.path.isfile(file_path):
             os.remove(file_path)
     return True
+
+def is_file_exists(path):
+    """Checks if a file exists at the given path."""
+    return os.path.isfile(path)

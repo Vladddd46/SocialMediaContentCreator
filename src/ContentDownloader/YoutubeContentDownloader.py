@@ -1,6 +1,7 @@
 import os
 import re
 import subprocess
+import warnings
 
 from pytubefix import YouTube
 
@@ -12,6 +13,9 @@ from src.entities.MediaFile import MediaFile
 from src.entities.MediaType import MediaType
 from src.entities.SourceType import SourceType
 from src.utils.Logger import logger
+
+# Suppress SyntaxWarning globally
+warnings.filterwarnings("ignore", category=SyntaxWarning) # TODO: be very carefull with this
 
 
 class YoutubeContentDownloader(ContentDownloader):

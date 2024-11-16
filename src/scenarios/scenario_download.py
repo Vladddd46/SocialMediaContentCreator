@@ -13,7 +13,7 @@
 
 from typing import List
 
-from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH,CACHE_DIR_NAME, NOT_PROCESSED_RAW_DOWNLOADED_CONTENT_FILE_NAME
+from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH
 
 from src.ContentFilters.TiktokTagsAddFilter import TiktokTagsAddFilter
 from src.entities.ContentToUpload import ContentToUpload
@@ -27,7 +27,6 @@ from src.utils.helpers import (cache_downloaded_content, get_account_sources,
                                remove_downloaded_raw_content,
                                update_uploading_config_with_new_content)
 from src.utils.Logger import logger
-from src.utils.fs_utils import read_json
 
 
 def _download_raw_content_from_source(
