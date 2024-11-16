@@ -118,6 +118,8 @@ class YoutubeContentDownloadDefiner(ContentDownloadDefiner):
         )
 
         res = self.__define_content_to_download(source, account)
+
+        logger.info(f"Defined content to download={res} from source={source.name}")
         return res
 
     def __str__(self):

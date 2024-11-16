@@ -1,6 +1,6 @@
 """
 # author: vladddd46
-# brief: entrypoint to app. see ./docs/ for more info
+# brief: entrypoint to application see ./docs/ for more info
 # date: 05.11.2024
 """
 
@@ -11,21 +11,16 @@ import time
 
 import schedule
 
-from configurations.config import (CONTENT_DIR_NAME,
-                                   CONTENT_TO_UPLOAD_CONFIG_FILENAME, LOG_PATH,
-                                   MANAGABLE_ACCOUNT_DATA_PATH,
+from configurations.config import (LOG_PATH, MANAGABLE_ACCOUNT_DATA_PATH,
                                    MANAGABLE_ACCOUNTS_CONFIG_PATH,
-                                   SOURCES_CONFIG_PATH, TMP_DIR_PATH,
-                                   USE_SHEDULE)
-from src.adaptors.ContentToUploadAdaptor import json_to_ContentToUpload
-from src.adaptors.SourceAdaptor import json_list_to_Source_list
-from src.utils.fs_utils import read_json, remove_directory, remove_recursive
-from src.utils.helpers import (construct_managable_accounts,
-                               create_default_dir_stucture,
-                               get_content_download_definer,
-                               get_content_downloader,
-                               get_highlights_video_extractor,
-                               remove_uploaded_content)
+                                   TMP_DIR_PATH, USE_SHEDULE)
+from src.ManagableAccount.ManagableAccount import ManagableAccount
+from src.scenarios.scenario_download import download_screnario
+from src.scenarios.scenario_upload import upload_scenario
+from src.utils.fs_utils import remove_directory, remove_recursive
+from src.utils.helpers import (check_if_there_is_content_to_upload,
+                               construct_managable_accounts,
+                               create_default_dir_stucture)
 from src.utils.Logger import logger
 
 request_to_upload_queue = queue.Queue()
@@ -43,116 +38,9 @@ def full_clean():
     remove_directory(f"{MANAGABLE_ACCOUNT_DATA_PATH}")
 
 
-def upload_scenario(account):
-    content_to_upload_config_path = (
-        account.get_account_dir_path() + CONTENT_TO_UPLOAD_CONFIG_FILENAME
-    )
-    # need to read config with contentToUpload requests again because
-    # if there was no contentToUpload, new contentToUpload could appear after download scenario.
-    content_to_upload_requests = read_json(content_to_upload_config_path)
-    if len(content_to_upload_requests) == 0:
-        logger.warning(
-            f"There is still no content to upload even after downloading account={account.name}"
-        )
-        return False
-
-    # sort requests, so to take the oldest contentToUpload.
-    sorted_requests = sorted(content_to_upload_requests, key=lambda x: x["cid"])
-    content_to_upload_json = sorted_requests.pop(0)
-    content_to_upload = json_to_ContentToUpload(content_to_upload_json)
-
-    # upload new content into account.
-    result = account.upload(content_to_upload)
-
-    # if new content was uploaded, remove all entries associated with this content.
-    if result == True:
-        remove_uploaded_content(content_to_upload, content_to_upload_config_path)
-
-    return result
-
-
-def handle_download_for_source(source, account):
-    logger.info(f"Start downloading process for source={source}")
-
-    content_to_download_definer = get_content_download_definer(source)
-    logger.info(f"Determine download definer={content_to_download_definer}")
-    if content_to_download_definer == None:
-        logger.error(f"DownloadDefiner is None, skipping source={source.name}")
-        return None
-
-    content_to_download = content_to_download_definer.define_content_to_download(
-        source, account
-    )
-    if content_to_download == None:
-        logger.error(f"Determined content is None, skipping source={source.name}")
-        return None
-    logger.info(
-        f"Defined content to download={content_to_download} from source={source.name}"
-    )
-
-    downloader = get_content_downloader(content_to_download)
-    logger.info(f"Determine downloader={downloader} for source={source.name}")
-    if downloader == None:
-        logger.error(f"Downloader is None, skipping source={source.name}")
-        return None
-
-    dowanloded_content_path = downloader.downloadContent(
-        content_to_download, download_path=TMP_DIR_PATH
-    )
-    if dowanloded_content_path == None:
-        logger.error(f"Content was not download, skipping source={source.name}")
-        return None
-    logger.info(
-        f"Content from source={source.name} is downloaded to {dowanloded_content_path}"
-    )
-    return dowanloded_content_path
-
-
-def download_screnario(account):
-    sources_json = read_json(SOURCES_CONFIG_PATH)
-    all_sources = json_list_to_Source_list(sources_json)
-
-    # extract only sources, which account subscribed to.
-    filtered_sources = [
-        source for source in all_sources if source.name in account.sources
-    ]
-
-    for source in filtered_sources:
-        downloaded_path = handle_download_for_source(source, account)
-        if downloaded_path == None:
-            continue
-
-        #
-        extractor = get_highlights_video_extractor(source.content_type)
-        if extractor == None:
-            logger.info(
-                f"Can not determine extractor for content_type={content_type}, skipping source={source.name}"
-            )
-            continue
-        logger.info(f"Determined content extractor {extractor}")
-        res = extractor.extract_highlights(
-            source_content_path=downloaded_path,
-            destination_for_saving_highlights=f"{account.get_account_dir_path()}/{CONTENT_DIR_NAME}",
-        )
-        print(res)
-        #
-
-        # remove content because it was already proccessed
-        # remove_file(downloaded_path)
-
-
-def handle_managable_account(account):
-    content_to_upload_config_path = (
-        account.get_account_dir_path() + CONTENT_TO_UPLOAD_CONFIG_FILENAME
-    )
-    content_to_upload_requests = read_json(content_to_upload_config_path)
-
-    logger.info(
-        f"Handling account={account.name} | uploadingConfig={content_to_upload_config_path}"
-    )
-
+def handle_managable_account(account: ManagableAccount):
     # No available content to upload => download new content and prepare for uploading.
-    if len(content_to_upload_requests) == 0:
+    if check_if_there_is_content_to_upload(account) == False:
         logger.info(
             f"There is no new content to upload in {account.name} account => start downloading raw content"
         )
@@ -205,8 +93,7 @@ def execute(managable_accounts):
             schedule.run_pending()
             time.sleep(5)  # sleep for 5 seconds
     else:
-        # uploading content without scheduler.
-        # is used for development goals.
+        # uploading content without scheduler - used for development goals.
         for account in managable_accounts:
             handle_managable_account(account)
 

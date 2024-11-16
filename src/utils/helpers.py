@@ -5,6 +5,7 @@ from configurations.config import (CACHE_DIR_NAME, CONTENT_DIR_NAME,
 
 from src.adaptors.ManagableAccountAdaptor import \
     json_to_managable_accounts_list
+from src.adaptors.SourceAdaptor import json_list_to_Source_list
 from src.ContentDownloadDefiner.YoutubeContentDownloadDefiner import \
     YoutubeContentDownloadDefiner
 from src.ContentDownloader.YoutubeContentDownloader import \
@@ -16,8 +17,10 @@ from src.entities.Source import Source
 from src.entities.SourceType import SourceType
 from src.HighlightsVideoExtractor.TextualHighlightsVideoExtractor import \
     TextualHighlightsVideoExtractor
+from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.utils.fs_utils import (create_directory_if_not_exist,
-                                create_file_if_not_exists, read_json_file)
+                                create_file_if_not_exists, read_json,
+                                read_json_file)
 from src.utils.Logger import logger
 
 
@@ -80,6 +83,7 @@ def get_content_downloader(content_to_download: ContentToDownload):
     downloader = None
     if content_to_download.source_type == SourceType.YOUTUBE_CHANNEL.value:
         downloader = YoutubeContentDownloader()
+    logger.info(f"Determine downloader={downloader}")
     return downloader
 
 
@@ -87,6 +91,7 @@ def get_content_download_definer(source: Source):
     definer = None
     if source.source_type == SourceType.YOUTUBE_CHANNEL.value:
         definer = YoutubeContentDownloadDefiner()
+    logger.info(f"Determine download definer={definer}")
     return definer
 
 
@@ -95,3 +100,28 @@ def get_highlights_video_extractor(content_type: ContentType):
     if content_type == ContentType.YOUTUBE_VIDEO_INTERVIEW.value:
         extractor = TextualHighlightsVideoExtractor()
     return extractor
+
+
+def check_if_there_is_content_to_upload(account: ManagableAccount):
+    content_to_upload_config_path = (
+        account.get_account_dir_path() + CONTENT_TO_UPLOAD_CONFIG_FILENAME
+    )
+    content_to_upload_requests = read_json(content_to_upload_config_path)
+
+    logger.info(
+        f"Handling account={account.name} | uploadingConfig={content_to_upload_config_path}"
+    )
+    if len(content_to_upload_requests) == 0:
+        return False
+    return True
+
+
+def get_account_sources(path: str, account: ManagableAccount):
+    sources_json = read_json(path)
+    all_sources = json_list_to_Source_list(sources_json)
+
+    # extract only sources, which account subscribed to.
+    filtered_sources = [
+        source for source in all_sources if source.name in account.sources
+    ]
+    return filtered_sources

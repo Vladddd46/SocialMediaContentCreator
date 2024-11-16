@@ -6,6 +6,10 @@ from pytubefix import YouTube
 
 from src.ContentDownloader.ContentDownloader import ContentDownloader
 from src.entities.ContentToDownload import ContentToDownload
+from src.entities.DownloadedRawContent import (DownloadedRawContent,
+                                               DownloadedRawContentType)
+from src.entities.MediaFile import MediaFile
+from src.entities.MediaType import MediaType
 from src.entities.SourceType import SourceType
 from src.utils.Logger import logger
 
@@ -89,7 +93,9 @@ class YoutubeContentDownloader(ContentDownloader):
             logger.info(
                 f"Download complete! Video '{video_title}' was downloaded in {video_stream.resolution} resolution with audio."
             )
-            return final_path
+            media_files = [MediaFile(final_path, MediaType.VIDEO)]
+            res = DownloadedRawContent(media_files, DownloadedRawContentType.VIDEO)
+            return res
         except Exception as e:
             logger.error(f"An error occurred while downloading youtube content: {e}")
         return None
@@ -98,18 +104,20 @@ class YoutubeContentDownloader(ContentDownloader):
         logger.info(
             f"Request to download youtube content: {youtube_video_url} and save it into path={download_path}"
         )
-        return self.__downloadContentByUrl(youtube_video_url, download_path)
+        res = self.__downloadContentByUrl(youtube_video_url, download_path)
+        return res
 
     def downloadContent(
         self, content_to_download: ContentToDownload, download_path="."
-    ):
+    ) -> DownloadedRawContent:
         if content_to_download.source_type != SourceType.YOUTUBE_CHANNEL.value:
             logger.error(
                 f"YoutubeContentDownloader can download only from YOUTUBE sources | source={content_to_download.source_type.value}"
             )
             return None
         url_to_download = content_to_download.url
-        return self.__downloadContentByUrl(url_to_download, download_path)
+        res = self.__downloadContentByUrl(url_to_download, download_path)
+        return res
 
     def __str__(self):
         return f"YoutubeContentDownloader"
