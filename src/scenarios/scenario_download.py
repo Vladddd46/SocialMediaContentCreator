@@ -11,15 +11,17 @@
 @return: void
 """
 
-from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH, CONTENT_DIR_NAME
+from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH
 
 from src.entities.DownloadedRawContent import DownloadedRawContent
 from src.entities.Source import Source
 from src.ManagableAccount.ManagableAccount import ManagableAccount
+from src.utils.fs_utils import remove_files_from_folder
 from src.utils.helpers import (get_account_sources,
                                get_content_download_definer,
                                get_content_downloader,
-                               remove_downloaded_raw_content, get_highlights_video_extractor)
+                               get_highlights_video_extractor,
+                               update_uploading_config_with_new_content)
 from src.utils.Logger import logger
 
 
@@ -50,10 +52,10 @@ def _download_raw_content_from_source(
         return None
 
     # Download DownloadedRawContent using determined downloader
-    dowanloded_content_path = downloader.downloadContent(
+    downloaded_raw_content = downloader.downloadContent(
         content_to_download, download_path=TMP_DIR_PATH
     )
-    return dowanloded_content_path
+    return downloaded_raw_content
 
 
 def _download_content_from_source(source: Source, account: ManagableAccount):
@@ -70,19 +72,22 @@ def _download_content_from_source(source: Source, account: ManagableAccount):
 
     # Extract highlights and save them into destination_for_saving_highlights.
     # Also add note about highlight into contentToUploadeConfig.json
-    account_content_dir_path = f"{account.get_account_dir_path()}/{CONTENT_DIR_NAME}"
-    res = extractor.extract_highlights(
-        account=account,
-        downloaded_raw_content=downloaded_raw_content,
-        destination_for_saving_highlights=account_content_dir_path,
+    content_to_upload = extractor.extract_highlights(
+        downloaded_raw_content=downloaded_raw_content
     )
 
-    # TODO: here should be functionality of adding filters contentToUpload
-    # ...
-    # ...
+    # Extractor preprocess downloaded_raw_content and returned list[ContentToUpload]
+    # TODO: here we should add filters to ContentToUpload if it`s needed
 
-    # remove content because it was already proccessed
-    remove_downloaded_raw_content(downloaded_raw_content)
+    # ContentToUpload is ready for uploading.
+    # Moving ContentToUpload from tmp folder into account`s content folder.
+    # Modifying account`s upload config => adding new notes in config about new content.
+    update_uploading_config_with_new_content(account, content_to_upload)
+
+    # remove content of tmp folder
+    remove_files_from_folder(
+        TMP_DIR_PATH
+    )  # TODO: should delete only those files, which were created during download process
 
 
 def download_screnario(account: ManagableAccount):

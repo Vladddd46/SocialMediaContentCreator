@@ -226,3 +226,71 @@ def list_non_hidden_files(folder_path):
     ]
 
     return files
+
+
+def move(src, dst):
+    """
+    Moves a file or directory from src to dst.
+
+    Parameters:
+    src (str): The source path of the file or directory to move.
+    dst (str): The destination path where the file or directory should be moved.
+
+    Returns:
+    str: The new path of the moved file or directory.
+
+    Raises:
+    FileNotFoundError: If the source file or directory does not exist.
+    PermissionError: If there are insufficient permissions to perform the move.
+    """
+    try:
+        # Perform the move
+        new_path = shutil.move(src, dst)
+        return new_path
+    except FileNotFoundError as e:
+        return None
+    except PermissionError as e:
+        return None
+    except Exception as e:
+        return None
+    return None
+
+
+def get_file_extension(filepath):
+    """
+    Takes a file path as input and returns the file extension.
+
+    Parameters:
+        filepath (str): The path to the file.
+
+    Returns:
+        str: The file extension, or an empty string if no extension is found.
+    Example usage:
+        file_path = "/path/to/your/file.txt"
+        print(get_file_extension(file_path))  # Output: .txt
+    """
+    _, extension = os.path.splitext(filepath)
+    return extension
+
+
+def remove_files_from_folder(folder_path):
+    """
+    Removes all files from the specified folder.
+
+    Parameters:
+        folder_path (str): The path to the folder.
+
+    Returns:
+        bool
+    """
+    if not os.path.exists(folder_path):
+        return False
+
+    if not os.path.isdir(folder_path):
+        return False
+
+    for file_name in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, file_name)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+    return True

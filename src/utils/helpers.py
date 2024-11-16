@@ -1,10 +1,13 @@
 import os
+import re
 
 from configurations.config import (CACHE_DIR_NAME, CONTENT_DIR_NAME,
                                    CONTENT_TO_UPLOAD_CONFIG_FILENAME,
                                    CREDS_DIR_NAME, HIGHLIGHT_NAME,
                                    MANAGABLE_ACCOUNT_DATA_PATH, TMP_DIR_PATH)
 
+from src.adaptors.ContentToUploadAdaptor import \
+    json_list_to_ContentToUpload_list
 from src.adaptors.ManagableAccountAdaptor import \
     json_to_managable_accounts_list
 from src.adaptors.SourceAdaptor import json_list_to_Source_list
@@ -22,8 +25,9 @@ from src.HighlightsExtractor.TextualHighlightsVideoExtractor import \
     TextualHighlightsVideoExtractor
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.utils.fs_utils import (create_directory_if_not_exist,
-                                create_file_if_not_exists, read_json,
-                                read_json_file)
+                                create_file_if_not_exists, get_file_extension,
+                                move, read_json, read_json_file, remove_file,
+                                save_json)
 from src.utils.Logger import logger
 
 
@@ -71,7 +75,7 @@ def remove_downloaded_raw_content(downloaded_raw_content: DownloadedRawContent):
 def remove_uploaded_content(
     content_to_upload: ContentToUpload, upload_requests_config_path: str
 ):
-    for media_file in contentToUpload.mediaFiles:
+    for media_file in content_to_upload.mediaFiles:
         rm_res = remove_file(media_file.path)
         logger.info(f"removing mediaFile={media_file.path} | result={rm_res}")
 
@@ -171,4 +175,60 @@ def sort_highlights_folder(self, folder_path):
         os.rename(old_path, new_path)
 
 
+def update_uploading_config_with_new_content(account, new_content):
+    # @brief: adds new mediafiles into contentToUpload folder of the account
+    #         modifies config, so to add new contentToUpload notes.
 
+    def get_mediaFile_id(path: str):
+        match = re.search(r"mediaFile_(\d+)", filepath)
+        if match:
+            return int(
+                match.group(1)
+            )  # Extract and convert the matched number to an integer
+        return None
+
+    def calculate_max_cid(content_to_upload):
+        max_cid = 0
+        for i in content_to_upload:
+            if i.cid > max_cid:
+                max_cid = i.cid
+        return max_cid + 1
+
+    def calculate_max_mediaFile_id(content_to_upload):
+        max_id = 0
+        for i in range(len(content_to_upload)):
+            for j in range(len(content_to_upload[i])):
+                tmp_media_file_path = content_to_upload[i][j].path
+                tmp_id = get_mediaFile_id(tmp_media_file_path)
+                if tmp_id != None and tmp_id > max_id:
+                    max_id = tmp_id
+        return max_id + 1
+
+    path_to_config = (
+        f"{account.get_account_dir_path()}/{CONTENT_TO_UPLOAD_CONFIG_FILENAME}"
+    )
+    path_to_content_dir = f"{account.get_account_dir_path()}/{CONTENT_DIR_NAME}/"
+    config_json = read_json(path_to_config)
+    current_content_to_upload = json_list_to_ContentToUpload_list(config_json)
+
+    max_cid = calculate_max_cid(current_content_to_upload)
+    max_mediaFile_id = calculate_max_mediaFile_id(current_content_to_upload)
+    logger.info(f"Found max_cid={max_cid}, max_mediaFile_id={max_mediaFile_id}")
+
+    for i in range(len(new_content)):
+        new_content[i].cid = max_cid
+        for j in range(len(new_content[i].mediaFiles)):
+            extension = get_file_extension(new_content[i].mediaFiles[j].path)
+            new_name = f"mediaFile_{max_mediaFile_id}{extension}"
+            new_path = path_to_content_dir + new_name
+            move(new_content[i].mediaFiles[j].path, new_path)
+            new_content[i].mediaFiles[j].path = new_path
+            max_mediaFile_id += 1
+        max_cid += 1
+
+    current_content_to_upload.extend(new_content)
+    logger.info(f"Adding new content to uploading config: {new_content}")
+
+    json_data = [i.to_dict() for i in current_content_to_upload]
+    save_json(json_data, path_to_config)
+    logger.info("Uploading config is updated")

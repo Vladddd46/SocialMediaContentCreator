@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
+from typing import List
 
+from configurations.config import TMP_DIR_PATH
+
+from src.entities.ContentToUpload import ContentToUpload
 from src.entities.DownloadedRawContent import DownloadedRawContent
-from src.ManagableAccount.ManagableAccount import ManagableAccount
 
 
 class HighlightsExtractor(ABC):
@@ -9,8 +12,7 @@ class HighlightsExtractor(ABC):
     @abstractmethod
     def extract_highlights(
         self,
-        account: ManagableAccount,
         downloaded_raw_content: DownloadedRawContent,
-        destination_for_saving_highlights=".",
-    ):
+        destination_for_saving_highlights=TMP_DIR_PATH,
+    ) -> List[ContentToUpload]:
         pass
