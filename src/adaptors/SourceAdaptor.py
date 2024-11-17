@@ -12,7 +12,7 @@ def json_to_Source(json_data: Dict) -> Source:
     url = json_data.get("url", "")
     source_type = json_data.get("source_type", SourceType.UNSPECIFIED)
     content_type = json_data.get("content_type", ContentType.UNSPECIFIED)
-
+    max_num_of_highlights = json_data.get("max_num_of_highlights", 5)
     if name == "":
         logger.warning(
             "Source name is empty: are you sure you have correct sources config?"
@@ -34,7 +34,9 @@ def json_to_Source(json_data: Dict) -> Source:
             "Source content_type is UNSPECIFIED: are you sure you have correct sources config?"
         )
 
-    source = Source(name, description, url, source_type, content_type)
+    source = Source(
+        name, description, url, source_type, content_type, max_num_of_highlights
+    )
     return source
 
 

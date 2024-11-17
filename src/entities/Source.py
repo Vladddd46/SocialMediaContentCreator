@@ -11,12 +11,14 @@ class Source:
         url: str,
         source_type: SourceType,
         content_type: ContentType,
+        max_num_of_highlights: int = 5,
     ):
         self.name = name
         self.description = description
         self.url = url
         self.source_type = source_type
         self.content_type = content_type
+        self.max_num_of_highlights = max_num_of_highlights
 
     def __repr__(self):
         return f"Source(name={self.name!r}, description={self.description!r}, url={self.url!r}, source_type={self.source_type!r})"

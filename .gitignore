@@ -10,4 +10,4 @@ accounts_data
 tmp
 configurations/sources.json
 tiktok_tags_map.json
-trained_models/*
+trained_models/

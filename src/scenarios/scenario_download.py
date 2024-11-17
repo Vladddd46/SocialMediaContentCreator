@@ -15,9 +15,11 @@ from typing import List
 
 from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH
 
+from src.ContentFilters.EmptyFilter import EmptyFilter
 from src.ContentFilters.TiktokTagsAddFilter import TiktokTagsAddFilter
 from src.entities.ContentToUpload import ContentToUpload
 from src.entities.DownloadedRawContent import DownloadedRawContent
+from src.entities.FilterType import FilterType
 from src.entities.Source import Source
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.utils.helpers import (cache_downloaded_content, get_account_sources,
@@ -65,11 +67,22 @@ def _download_raw_content_from_source(
     return downloaded_raw_content
 
 
+def _get_filter(account, filter_type):
+    ret_filter = EmptyFilter(account)
+    if filter_type == FilterType.TIKTOK_TAGS_ADDER:
+        ret_filter = TiktokTagsAddFilter(account)
+    return ret_filter
+
+
 def _filter_content_to_upload(
     content_to_upload: List[ContentToUpload], account: ManagableAccount
 ):
-    tiktok_tags_filter = TiktokTagsAddFilter(account)
-    content_to_upload = tiktok_tags_filter.filter(content_to_upload)
+    logger.info(f"Applying filters to content_to_upload account={account.name}")
+    for tmp_filter_type in account.filters:
+        filter_to_apply = _get_filter(account, tmp_filter_type)
+        content_to_upload = filter_to_apply.filter(content_to_upload)
+        logger.info(f"Applied filter: {filter_to_apply}")
+
     return content_to_upload
 
 
@@ -81,6 +94,7 @@ def _download_content_from_source(source: Source, account: ManagableAccount):
     # Determine, which content extractor to use based on content type.
     # For example: for youtube video interviews it will be one extractor.
     # 			   for boxing video it will be another extractor.
+
     extractor = get_highlights_video_extractor(source.content_type)
     if extractor == None:
         return None

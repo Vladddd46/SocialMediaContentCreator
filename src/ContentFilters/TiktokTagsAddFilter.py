@@ -35,3 +35,9 @@ class TiktokTagsAddFilter(ContentFilter):
         else:
             logger.warning("TiktokTagsAddFilter does not applied", only_debug_mode=True)
         return content_to_upload
+
+    def __str__(self):
+        return f"TiktokTagsAddFilter"
+
+    def __repr__(self):
+        return f"TiktokTagsAddFilter"

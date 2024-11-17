@@ -15,7 +15,9 @@ from src.entities.SourceType import SourceType
 from src.utils.Logger import logger
 
 # Suppress SyntaxWarning globally
-warnings.filterwarnings("ignore", category=SyntaxWarning) # TODO: be very carefull with this
+warnings.filterwarnings(
+    "ignore", category=SyntaxWarning
+)  # TODO: be very carefull with this
 
 
 class YoutubeContentDownloader(ContentDownloader):

@@ -17,4 +17,4 @@ MANAGABLE_ACCOUNTS_CONFIG_PATH = "configurations/managable_accounts.json"
 SOURCES_CONFIG_PATH = "./configurations/sources.json"
 NOT_PROCESSED_RAW_DOWNLOADED_CONTENT_FILE_NAME = "notProcessedDownloadedContent.json"
 MAX_NUM_OF_HIGHLIGHTS = 5
-SENTIMENTAL_TAINED_MODEL_PATH = "./trained_models/fine_tuned_xlm_roberta"
+SENTIMENTAL_TAINED_MODEL_PATH = "./trained_models/fine_tuned_xlm_roberta" # use "xlm-roberta-base" by default

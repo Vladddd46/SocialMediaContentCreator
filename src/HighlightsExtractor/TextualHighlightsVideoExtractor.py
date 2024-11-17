@@ -3,7 +3,8 @@ from typing import List
 
 import moviepy.editor as mp
 import whisper
-from configurations.config import HIGHLIGHT_NAME, TMP_DIR_PATH, MAX_NUM_OF_HIGHLIGHTS, SENTIMENTAL_TAINED_MODEL_PATH
+from configurations.config import (HIGHLIGHT_NAME, MAX_NUM_OF_HIGHLIGHTS,
+                                   SENTIMENTAL_TAINED_MODEL_PATH, TMP_DIR_PATH)
 from transformers import pipeline
 
 from src.entities.ContentToUpload import ContentToUpload
@@ -14,9 +15,12 @@ from src.HighlightsExtractor.HighlightsExtractor import HighlightsExtractor
 from src.utils.fs_utils import is_path_exists
 from src.utils.Logger import logger
 
+
 class TextualHighlightsVideoExtractor(HighlightsExtractor):
 
-    def __init__(self, model_name="base", sentiment_model=SENTIMENTAL_TAINED_MODEL_PATH):
+    def __init__(
+        self, model_name="base", sentiment_model=SENTIMENTAL_TAINED_MODEL_PATH
+    ):
         # Load Whisper model and multilingual sentiment analyzer
         self.model = whisper.load_model(model_name)
         self.sentiment_analyzer = pipeline("sentiment-analysis", model=sentiment_model)

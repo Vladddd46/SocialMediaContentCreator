@@ -2,6 +2,7 @@ from typing import Dict, List, Optional
 
 from src.entities.AccountCredentials import AccountCredentials
 from src.entities.AccountType import AccountType
+from src.entities.FilterType import FilterType
 from src.entities.Proxy import Proxy
 from src.entities.Schedule import Schedule
 from src.ManagableAccount.ManagableAccount import ManagableAccount
@@ -64,6 +65,16 @@ def json_to_managable_account(data: Dict) -> Optional[ManagableAccount]:
 
     sources = data.get("sources", [])
 
+    json_filters = data.get("filters", [])
+    filters = [
+        (
+            FilterType(filter_str)
+            if filter_str in FilterType._value2member_map_
+            else FilterType.UNSPECIFIED
+        )
+        for filter_str in json_filters
+    ]
+
     # Create and return the correct ManagableAccount instance based on account type
     if account_type == AccountType.TIKTOK:
         return TiktokManagableAccount(
@@ -75,6 +86,7 @@ def json_to_managable_account(data: Dict) -> Optional[ManagableAccount]:
             accountType=account_type,
             schedule=schedule,
             sources=sources,
+            filters=filters,
         )
 
     return None

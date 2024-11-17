@@ -18,19 +18,25 @@ from configurations.config import (
     TMP_DIR_PATH,
     CREDS_DIR_NAME,
     USE_SHEDULE,
-    TIKTOK_COOKIES_PATH
+    TIKTOK_COOKIES_PATH,
 )
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.scenarios.scenario_download import download_screnario
 from src.scenarios.scenario_upload import upload_scenario
-from src.utils.fs_utils import remove_directory, remove_recursive, is_path_exists, remove_files_from_folder
+from src.utils.fs_utils import (
+    remove_directory,
+    remove_recursive,
+    is_path_exists,
+    remove_files_from_folder,
+)
 from src.utils.helpers import (
     check_if_there_is_content_to_upload,
     construct_managable_accounts,
-    create_default_dir_stucture
+    create_default_dir_stucture,
 )
 from src.utils.Logger import logger
 from src.entities.AccountType import AccountType
+
 request_to_upload_queue = queue.Queue()
 
 
@@ -55,7 +61,6 @@ def handle_managable_account(account: ManagableAccount):
                 f"There is no new content to upload in {account.name} account => start downloading raw content"
             )
             download_screnario(account)
-            exit(1)
         result = upload_scenario(account)
     except Exception as e:
         logger.error(f"Critical error: something went wrong in the script: {e}")

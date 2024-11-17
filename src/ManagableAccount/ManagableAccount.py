@@ -13,6 +13,7 @@ from configurations.config import MANAGABLE_ACCOUNT_DATA_PATH
 from src.entities.AccountCredentials import AccountCredentials
 from src.entities.AccountType import AccountType
 from src.entities.ContentToUpload import ContentToUpload
+from src.entities.FilterType import FilterType
 from src.entities.Proxy import Proxy
 from src.entities.Schedule import Schedule
 from src.utils.fs_utils import is_path_exists
@@ -30,6 +31,7 @@ class ManagableAccount(ABC):
         accountType: AccountType,
         schedule: Schedule,
         sources: List[str],
+        filters: List[FilterType],
     ):
         self.name = name
         self.description = description
@@ -39,6 +41,7 @@ class ManagableAccount(ABC):
         self.accountType = accountType
         self.schedule = schedule
         self.sources = sources
+        self.filters = filters
 
     def get_account_dir_path(self):
         return f"{MANAGABLE_ACCOUNT_DATA_PATH}/{self.accountType.value}/{self.name}/"

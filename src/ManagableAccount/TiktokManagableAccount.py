@@ -9,6 +9,7 @@ from configurations.config import TIKTOK_COOKIES_PATH
 from src.entities.AccountCredentials import AccountCredentials
 from src.entities.AccountType import AccountType
 from src.entities.ContentToUpload import ContentToUpload
+from src.entities.FilterType import FilterType
 from src.entities.MediaType import MediaType
 from src.entities.Proxy import Proxy
 from src.entities.Schedule import Schedule
@@ -29,9 +30,18 @@ class TiktokManagableAccount(ManagableAccount):
         accountType: AccountType,
         schedule: Schedule,
         sources: List[str],
+        filters: List[FilterType],
     ):
         super().__init__(
-            name, description, url, proxy, credentials, accountType, schedule, sources
+            name,
+            description,
+            url,
+            proxy,
+            credentials,
+            accountType,
+            schedule,
+            sources,
+            filters,
         )
         cookies_for_login_in_tiktok_account_path = (
             self.get_account_dir_path() + TIKTOK_COOKIES_PATH
