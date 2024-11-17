@@ -15,6 +15,7 @@ from typing import List
 
 from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH
 
+from src.ContentFilters.AddCaptionsContentFilter import AddCaptionsContentFilter
 from src.ContentFilters.EmptyFilter import EmptyFilter
 from src.ContentFilters.TiktokTagsAddFilter import TiktokTagsAddFilter
 from src.entities.ContentToUpload import ContentToUpload
@@ -71,6 +72,8 @@ def _get_filter(account, filter_type):
     ret_filter = EmptyFilter(account)
     if filter_type == FilterType.TIKTOK_TAGS_ADDER:
         ret_filter = TiktokTagsAddFilter(account)
+    elif filter_type == FilterType.ADD_VIDEO_CAPTIONS:
+        ret_filter = AddCaptionsContentFilter()
     return ret_filter
 
 
