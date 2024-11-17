@@ -3,7 +3,7 @@ from typing import List
 
 import moviepy.editor as mp
 import whisper
-from configurations.config import HIGHLIGHT_NAME, TMP_DIR_PATH
+from configurations.config import HIGHLIGHT_NAME, TMP_DIR_PATH, MAX_NUM_OF_HIGHLIGHTS, SENTIMENTAL_TAINED_MODEL_PATH
 from transformers import pipeline
 
 from src.entities.ContentToUpload import ContentToUpload
@@ -14,10 +14,9 @@ from src.HighlightsExtractor.HighlightsExtractor import HighlightsExtractor
 from src.utils.fs_utils import is_path_exists
 from src.utils.Logger import logger
 
-
 class TextualHighlightsVideoExtractor(HighlightsExtractor):
 
-    def __init__(self, model_name="base", sentiment_model="xlm-roberta-base"):
+    def __init__(self, model_name="base", sentiment_model=SENTIMENTAL_TAINED_MODEL_PATH):
         # Load Whisper model and multilingual sentiment analyzer
         self.model = whisper.load_model(model_name)
         self.sentiment_analyzer = pipeline("sentiment-analysis", model=sentiment_model)
@@ -119,9 +118,9 @@ class TextualHighlightsVideoExtractor(HighlightsExtractor):
         self,
         source_path,
         highlights_path,
-        max_highlights=2,
+        max_highlights=MAX_NUM_OF_HIGHLIGHTS,
         max_duration=120,
-        context_buffer=30,
+        context_buffer=15,
     ):
         logger.info("Loading source content")
         video = self._load_video(source_path)

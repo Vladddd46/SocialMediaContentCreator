@@ -9,3 +9,5 @@ configurations/managable_accounts.json
 accounts_data
 tmp
 configurations/sources.json
+tiktok_tags_map.json
+trained_models/*

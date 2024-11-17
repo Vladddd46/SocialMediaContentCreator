@@ -15,7 +15,6 @@ class TiktokTagsAddFilter(ContentFilter):
         self.account = account
 
     def filter(self, content_to_upload: List[ContentToUpload]) -> List[ContentToUpload]:
-        print(self.account.accountType)
         if self.account.accountType == AccountType.TIKTOK:
             logger.info(
                 f"Filter: adding tags for content_to_upload for tiktok account={self.account.name}"

@@ -23,7 +23,7 @@ from configurations.config import (
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.scenarios.scenario_download import download_screnario
 from src.scenarios.scenario_upload import upload_scenario
-from src.utils.fs_utils import remove_directory, remove_recursive, is_path_exists
+from src.utils.fs_utils import remove_directory, remove_recursive, is_path_exists, remove_files_from_folder
 from src.utils.helpers import (
     check_if_there_is_content_to_upload,
     construct_managable_accounts,
@@ -47,13 +47,19 @@ def full_clean():
 
 
 def handle_managable_account(account: ManagableAccount):
-    # No available content to upload => download new content and prepare for uploading.
-    if check_if_there_is_content_to_upload(account) == False:
-        logger.info(
-            f"There is no new content to upload in {account.name} account => start downloading raw content"
-        )
-        download_screnario(account)
-    result = upload_scenario(account)
+    result = False
+    try:
+        # No available content to upload => download new content and prepare for uploading.
+        if check_if_there_is_content_to_upload(account) == False:
+            logger.info(
+                f"There is no new content to upload in {account.name} account => start downloading raw content"
+            )
+            download_screnario(account)
+            exit(1)
+        result = upload_scenario(account)
+    except Exception as e:
+        logger.error(f"Critical error: something went wrong in the script: {e}")
+        remove_files_from_folder(TMP_DIR_PATH)
     return result
 
 
