@@ -19,6 +19,9 @@ from configurations.config import (
     CREDS_DIR_NAME,
     USE_SHEDULE,
     TIKTOK_COOKIES_PATH,
+    CACHE_DIR_NAME,
+    CONTENT_TO_UPLOAD_CONFIG_FILENAME,
+    CONTENT_DIR_NAME
 )
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.scenarios.scenario_download import download_screnario
@@ -51,6 +54,12 @@ def full_clean():
     remove_directory(f"{LOG_PATH}")
     remove_directory(f"{MANAGABLE_ACCOUNT_DATA_PATH}")
 
+
+def clean_cache():
+    clean()
+    remove_recursive(f"{CACHE_DIR_NAME}")
+    remove_recursive(f"{CONTENT_TO_UPLOAD_CONFIG_FILENAME}")
+    remove_recursive(f"{CONTENT_DIR_NAME}")
 
 def handle_managable_account(account: ManagableAccount):
     result = False
@@ -136,6 +145,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--clean", action="store_true", help="Clean resources")
     parser.add_argument("--full_clean", action="store_true", help="Clean all resources")
+    parser.add_argument("--clean_cache", action="store_true", help="Clean caches")
 
     args = parser.parse_args()
 
@@ -145,5 +155,8 @@ if __name__ == "__main__":
     elif args.full_clean:
         full_clean()
         print("===Project is fully cleaned===")
+    elif args.clean_cache:
+        clean_cache()
+        print("===Project cache is cleaned===")
     else:
         main()

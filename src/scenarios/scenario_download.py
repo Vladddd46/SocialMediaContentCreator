@@ -18,6 +18,7 @@ from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH
 from src.ContentFilters.AddCaptionsContentFilter import AddCaptionsContentFilter
 from src.ContentFilters.EmptyFilter import EmptyFilter
 from src.ContentFilters.TiktokTagsAddFilter import TiktokTagsAddFilter
+from src.ContentFilters.AddDynamicCaptionsContentFilter import AddDynamicCaptionsContentFilter
 from src.entities.ContentToUpload import ContentToUpload
 from src.entities.DownloadedRawContent import DownloadedRawContent
 from src.entities.FilterType import FilterType
@@ -74,6 +75,8 @@ def _get_filter(account, filter_type):
         ret_filter = TiktokTagsAddFilter(account)
     elif filter_type == FilterType.ADD_VIDEO_CAPTIONS:
         ret_filter = AddCaptionsContentFilter()
+    elif filter_type == FilterType.ADD_VIDEO_DYNAMIC_CAPTIONS:
+        ret_filter = AddDynamicCaptionsContentFilter()
     return ret_filter
 
 

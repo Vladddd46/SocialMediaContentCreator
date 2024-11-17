@@ -1,1 +1,2 @@
 1. Add scheduler for scheduling content upload. [DONE]
+2. Update docs. Now they are outdated
