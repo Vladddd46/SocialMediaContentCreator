@@ -1,16 +1,49 @@
 import os
-import subprocess
 import re
+import subprocess
 from typing import List
-from src.entities.ContentToUpload import ContentToUpload
+
 from src.ContentFilters.ContentFilter import ContentFilter
+from src.entities.ContentToUpload import ContentToUpload
 from src.entities.MediaType import MediaType
-from src.entities.MediaFile import MediaFile
 from src.utils.Logger import logger
 
+
 class AddDynamicCaptionsContentFilter(ContentFilter):
-    def __init__(self):
-        pass
+    def __init__(
+        self, fontsize=24, font_color="#FFFFFF", bg_color="#000000", position_margin=50
+    ):
+        """Initialize caption style parameters.
+
+        Args:
+            fontsize (int): Font size of the captions.
+            font_color (str): Primary color of the font in HEX format.
+            bg_color (str): Background color of the captions in HEX format.
+            position_margin (int): Vertical margin for the captions.
+        """
+        self.fontsize = fontsize
+        self.font_color = self.hex_to_ass_color(font_color)
+        self.bg_color = self.hex_to_ass_color(bg_color, alpha=128)
+        self.position_margin = position_margin
+
+    @staticmethod
+    def hex_to_ass_color(hex_color, alpha=0):
+        """Converts HEX color to ASS color format.
+
+        Args:
+            hex_color (str): Color in HEX format (e.g., "#RRGGBB").
+            alpha (int): Alpha channel (0 for opaque, 255 for fully transparent).
+
+        Returns:
+            str: Color in ASS format (e.g., "&HAABBGGRR&").
+        """
+        hex_color = hex_color.lstrip("#")
+        r, g, b = (
+            int(hex_color[0:2], 16),
+            int(hex_color[2:4], 16),
+            int(hex_color[4:6], 16),
+        )
+        return f"&H{alpha:02X}{b:02X}{g:02X}{r:02X}&"
 
     @staticmethod
     def format_time(seconds):
@@ -34,8 +67,7 @@ class AddDynamicCaptionsContentFilter(ContentFilter):
         result = model.transcribe(audio_path, task="language-detection")
         return result.get("language", "en")
 
-    @staticmethod
-    def add_captions_to_video(video_path):
+    def add_captions_to_video(self, video_path):
         """Adds word-level captions directly to the input video using Whisper."""
         try:
             # Ensure FFmpeg is installed
@@ -59,7 +91,9 @@ class AddDynamicCaptionsContentFilter(ContentFilter):
             import whisper
 
             model = whisper.load_model("medium")
-            result = model.transcribe(audio_path, language=language, word_timestamps=True)
+            result = model.transcribe(
+                audio_path, language=language, word_timestamps=True
+            )
 
             # Create subtitles file
             subtitles_path = "subtitles.srt"
@@ -67,7 +101,9 @@ class AddDynamicCaptionsContentFilter(ContentFilter):
                 index = 1
                 for segment in result["segments"]:
                     for word in segment["words"]:
-                        cleaned_word = AddDynamicCaptionsContentFilter.clean_text(word["word"])
+                        cleaned_word = AddDynamicCaptionsContentFilter.clean_text(
+                            word["word"]
+                        )
                         f.write(f"{index}\n")
                         f.write(
                             f"{AddDynamicCaptionsContentFilter.format_time(word['start'])} --> {AddDynamicCaptionsContentFilter.format_time(word['end'])}\n"
@@ -83,7 +119,7 @@ class AddDynamicCaptionsContentFilter(ContentFilter):
                     "-i",
                     video_path,
                     "-vf",
-                    f"subtitles={subtitles_path}:force_style='Fontsize=24,Bold=1,PrimaryColour=&HFFFFFF&,BackColour=&H80000000&,MarginV=100'",
+                    f"subtitles={subtitles_path}:force_style='Fontsize={self.fontsize},Bold=1,PrimaryColour={self.font_color},BackColour={self.bg_color},MarginV={self.position_margin}'",
                     "-c:v",
                     "libx264",
                     "-c:a",

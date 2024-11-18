@@ -15,10 +15,12 @@ from typing import List
 
 from configurations.config import SOURCES_CONFIG_PATH, TMP_DIR_PATH
 
-from src.ContentFilters.AddCaptionsContentFilter import AddCaptionsContentFilter
+from src.ContentFilters.AddCaptionsContentFilter import \
+    AddCaptionsContentFilter
+from src.ContentFilters.AddDynamicCaptionsContentFilter import \
+    AddDynamicCaptionsContentFilter
 from src.ContentFilters.EmptyFilter import EmptyFilter
 from src.ContentFilters.TiktokTagsAddFilter import TiktokTagsAddFilter
-from src.ContentFilters.AddDynamicCaptionsContentFilter import AddDynamicCaptionsContentFilter
 from src.entities.ContentToUpload import ContentToUpload
 from src.entities.DownloadedRawContent import DownloadedRawContent
 from src.entities.FilterType import FilterType

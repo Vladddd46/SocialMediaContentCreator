@@ -1,4 +1,6 @@
-from configurations.config import CACHE_DIR_NAME, DOWNLOADED_CONTENT_CACHE_PATH
+from configurations.config import (CACHE_DIR_NAME,
+                                   DOWNLOADED_CONTENT_CACHE_PATH,
+                                   MAX_DEPTH_OF_VIDEO_SEARCH)
 from pytubefix import Channel
 
 from src.ContentDownloadDefiner.ContentDownloadDefiner import \
@@ -9,9 +11,6 @@ from src.entities.SourceType import SourceType
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.utils.fs_utils import create_file_if_not_exists, read_json
 from src.utils.Logger import logger
-
-# the maximum num of the latest videos will be proceed
-MAX_DEPTH_OF_VIDEO_SEARCH = 10
 
 
 class YoutubeContentDownloadDefiner(ContentDownloadDefiner):

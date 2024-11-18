@@ -11,34 +11,21 @@ import time
 
 import schedule
 
-from configurations.config import (
-    LOG_PATH,
-    MANAGABLE_ACCOUNT_DATA_PATH,
-    MANAGABLE_ACCOUNTS_CONFIG_PATH,
-    TMP_DIR_PATH,
-    CREDS_DIR_NAME,
-    USE_SHEDULE,
-    TIKTOK_COOKIES_PATH,
-    CACHE_DIR_NAME,
-    CONTENT_TO_UPLOAD_CONFIG_FILENAME,
-    CONTENT_DIR_NAME
-)
+from configurations.config import (CACHE_DIR_NAME, CONTENT_DIR_NAME,
+                                   CONTENT_TO_UPLOAD_CONFIG_FILENAME,
+                                   DEBUG_START_ONLY_DOWNLOAD_SCENARIO,
+                                   LOG_PATH, MANAGABLE_ACCOUNT_DATA_PATH,
+                                   MANAGABLE_ACCOUNTS_CONFIG_PATH,
+                                   TMP_DIR_PATH, USE_SHEDULE)
 from src.ManagableAccount.ManagableAccount import ManagableAccount
 from src.scenarios.scenario_download import download_screnario
 from src.scenarios.scenario_upload import upload_scenario
-from src.utils.fs_utils import (
-    remove_directory,
-    remove_recursive,
-    is_path_exists,
-    remove_files_from_folder,
-)
-from src.utils.helpers import (
-    check_if_there_is_content_to_upload,
-    construct_managable_accounts,
-    create_default_dir_stucture,
-)
+from src.utils.fs_utils import (remove_directory, remove_files_from_folder,
+                                remove_recursive)
+from src.utils.helpers import (check_if_there_is_content_to_upload,
+                               construct_managable_accounts,
+                               create_default_dir_stucture)
 from src.utils.Logger import logger
-from src.entities.AccountType import AccountType
 
 request_to_upload_queue = queue.Queue()
 
@@ -61,6 +48,7 @@ def clean_cache():
     remove_recursive(f"{CONTENT_TO_UPLOAD_CONFIG_FILENAME}")
     remove_recursive(f"{CONTENT_DIR_NAME}")
 
+
 def handle_managable_account(account: ManagableAccount):
     result = False
     try:
@@ -70,7 +58,11 @@ def handle_managable_account(account: ManagableAccount):
                 f"There is no new content to upload in {account.name} account => start downloading raw content"
             )
             download_screnario(account)
-        result = upload_scenario(account)
+
+        # if upload scenario enabled in config.
+        result = True
+        if DEBUG_START_ONLY_DOWNLOAD_SCENARIO == False:
+            result = upload_scenario(account)
     except Exception as e:
         logger.error(f"Critical error: something went wrong in the script: {e}")
         remove_files_from_folder(TMP_DIR_PATH)

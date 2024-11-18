@@ -1,12 +1,13 @@
 import os
 import subprocess
 from typing import List
-from src.entities.ContentToUpload import ContentToUpload
-from src.entities.MediaFile import MediaFile
-from src.entities.MediaType import MediaType
-from src.ContentFilters.ContentFilter import ContentFilter
 
 import whisper
+
+from src.ContentFilters.ContentFilter import ContentFilter
+from src.entities.ContentToUpload import ContentToUpload
+from src.entities.MediaType import MediaType
+
 
 class AddCaptionsContentFilter(ContentFilter):
     def __init__(self, whisper_model_size: str = "medium"):
@@ -68,7 +69,7 @@ class AddCaptionsContentFilter(ContentFilter):
             ],
             check=True,
         )
-        
+
         # Replace the original video with the captioned video
         os.replace(temp_output_path, video_path)
 
