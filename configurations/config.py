@@ -2,7 +2,7 @@ DEBUG_MODE = True
 LOG_ENABLED = True
 USE_SHEDULE = False
 WRITE_LOG_IN_STDOUT = False
-DEBUG_START_ONLY_DOWNLOAD_SCENARIO = True
+DEBUG_START_ONLY_DOWNLOAD_SCENARIO = False
 
 LOG_PATH = "./logs"
 TMP_DIR_PATH = "./tmp"  # path for saving temporary files.
@@ -20,5 +20,5 @@ SOURCES_CONFIG_PATH = "./configurations/sources.json"
 NOT_PROCESSED_RAW_DOWNLOADED_CONTENT_FILE_NAME = "notProcessedDownloadedContent.json"
 SENTIMENTAL_TAINED_MODEL_PATH = "./trained_models/fine_tuned_xlm_roberta"  # use "xlm-roberta-base" by default
 
-MAX_NUM_OF_HIGHLIGHTS = 2
+MAX_NUM_OF_HIGHLIGHTS = 2 # max number of highlights can be extracted from video
 MAX_DEPTH_OF_VIDEO_SEARCH = 10  # the maximum num of the latest videos will be proceed while downloading from youtube

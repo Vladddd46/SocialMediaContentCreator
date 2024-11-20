@@ -34,6 +34,7 @@ class TiktokEntrypoint:
             tmp_proxy = self.m_proxy.to_json()
         else:
             tmp_proxy = None
+        logger.info(f"Uploading with proxy {tmp_proxy}")
         failed_videos = upload_videos(
             videos=videos, auth=auth, headless=True, proxy=tmp_proxy
         )

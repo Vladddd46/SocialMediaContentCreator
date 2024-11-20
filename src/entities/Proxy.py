@@ -13,4 +13,6 @@ class Proxy:
             "host": self.host,
             "port": str(self.port),
         }
-        return None  # TODO: temporary solution
+        if self.user == None or self.password == None or self.host == None or self.port == None:
+            proxy = None
+        return proxy  # TODO: temporary solution
