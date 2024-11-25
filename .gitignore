@@ -11,3 +11,5 @@ tmp
 configurations/sources.json
 tiktok_tags_map.json
 trained_models/
+debug_managable_accounts.json
+*_hidden.json

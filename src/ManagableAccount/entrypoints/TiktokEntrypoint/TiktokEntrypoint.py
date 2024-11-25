@@ -5,7 +5,7 @@ from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tikto
 from src.ManagableAccount.entrypoints.TiktokEntrypoint.tiktok_uploader.src.tiktok_uploader.upload import \
     upload_videos
 from src.utils.Logger import logger
-
+from configurations.config import HEADLESS_MODE
 
 class TiktokEntrypoint:
 
@@ -36,6 +36,6 @@ class TiktokEntrypoint:
             tmp_proxy = None
         logger.info(f"Uploading with proxy {tmp_proxy}")
         failed_videos = upload_videos(
-            videos=videos, auth=auth, headless=True, proxy=tmp_proxy
+            videos=videos, auth=auth, headless=HEADLESS_MODE, proxy=tmp_proxy
         )
         return len(failed_videos) == 0

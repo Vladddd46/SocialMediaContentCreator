@@ -3,6 +3,8 @@ LOG_ENABLED = True
 USE_SHEDULE = False
 WRITE_LOG_IN_STDOUT = False
 DEBUG_START_ONLY_DOWNLOAD_SCENARIO = False
+ENABLE_TIKTOK_LOGS = True
+HEADLESS_MODE = False
 
 LOG_PATH = "./logs"
 TMP_DIR_PATH = "./tmp"  # path for saving temporary files.

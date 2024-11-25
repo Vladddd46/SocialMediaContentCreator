@@ -4,7 +4,7 @@ TikTok Uploader Initialization
 
 import logging
 from os.path import abspath, dirname, join
-
+from configurations.config import ENABLE_TIKTOK_LOGS
 import toml
 
 ## Load Config
@@ -22,4 +22,4 @@ stream_handler.setLevel(logging.DEBUG)
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
 
-logger.disabled = True  # disable logger here
+logger.disabled = not ENABLE_TIKTOK_LOGS  # disable logger here
