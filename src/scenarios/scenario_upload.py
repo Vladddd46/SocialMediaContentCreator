@@ -38,8 +38,7 @@ def upload_scenario(account: ManagableAccount) -> bool:
     result = account.upload(content_to_upload)
 
     # if new content was uploaded, remove all entries associated with this content, so to not upload it again
-    if result == True:
-        if RM_UPLOADED_CONTENT_DEBUG_FLAG == True:
-            remove_uploaded_content(content_to_upload, content_to_upload_config_path)
+    if result == True and RM_UPLOADED_CONTENT_DEBUG_FLAG == True:
+        remove_uploaded_content(content_to_upload, content_to_upload_config_path)
 
     return result
