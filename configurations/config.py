@@ -5,7 +5,7 @@ WRITE_LOG_IN_STDOUT = False
 DEBUG_START_ONLY_DOWNLOAD_SCENARIO = False
 ENABLE_TIKTOK_LOGS = True
 HEADLESS_MODE = False
-
+RM_UPLOADED_CONTENT_DEBUG_FLAG = False
 LOG_PATH = "./logs"
 TMP_DIR_PATH = "./tmp"  # path for saving temporary files.
 MANAGABLE_ACCOUNT_DATA_PATH = "./accounts_data"

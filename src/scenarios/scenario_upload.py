@@ -7,7 +7,7 @@
 @return: bool - the result of uploading
 """
 
-from configurations.config import CONTENT_TO_UPLOAD_CONFIG_FILENAME
+from configurations.config import CONTENT_TO_UPLOAD_CONFIG_FILENAME, RM_UPLOADED_CONTENT_DEBUG_FLAG
 
 from src.adaptors.ContentToUploadAdaptor import json_to_ContentToUpload
 from src.ManagableAccount.ManagableAccount import ManagableAccount
@@ -39,6 +39,7 @@ def upload_scenario(account: ManagableAccount) -> bool:
 
     # if new content was uploaded, remove all entries associated with this content, so to not upload it again
     if result == True:
-        remove_uploaded_content(content_to_upload, content_to_upload_config_path)
+        if RM_UPLOADED_CONTENT_DEBUG_FLAG == True:
+            remove_uploaded_content(content_to_upload, content_to_upload_config_path)
 
     return result

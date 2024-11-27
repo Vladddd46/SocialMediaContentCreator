@@ -1,3 +1,6 @@
 1. Add scheduler for scheduling content upload. [DONE]
 2. Update docs. Now they are outdated
 3. Add dynamic filters param change
+4. Add config debug flag for deleting content after upload
+5. Research why proxies do not work
+6. Research handling multiple accounts
