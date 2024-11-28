@@ -7,12 +7,13 @@ class Proxy:
         self.port = port
 
     def to_json(self):
-        proxy = {
-            "user": self.user,
-            "pass": self.password,
-            "host": self.host,
-            "port": str(self.port),
-        }
-        if self.user == None or self.password == None or self.host == None or self.port == None:
-            proxy = None
-        return proxy  # TODO: temporary solution
+        proxy = {}
+        if self.user:
+            proxy["user"] = self.user
+        if self.password:
+            proxy["pass"] = self.password
+        if self.host:
+            proxy["host"] = self.host
+        if self.port:
+            proxy["port"] = str(self.port)
+        return proxy
