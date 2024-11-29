@@ -37,7 +37,6 @@ def construct_managable_accounts(managable_accounts_config_path):
     # constructs ManagableAccount objects from json.
     managable_accounts_json = read_json_file(managable_accounts_config_path)
     managable_accounts = json_to_managable_accounts_list(managable_accounts_json)
-
     # number of constructed accounts should be the same as number of accounts in json.
     assert len(managable_accounts_json) == len(
         managable_accounts

@@ -75,6 +75,8 @@ def process_uploading_request_thread():
         account = request_to_upload_queue.get()  # Waits for data to become available
         logger.info(f"Received request to upload content in account='{account.name}'")
         result = handle_managable_account(account)
+        if result == False:
+            print(f"Failed to upload content in {account.name}")
         logger.info(
             f"Result on uploading content into account='{account.name}' result={result}"
         )
